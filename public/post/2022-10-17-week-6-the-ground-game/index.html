@@ -9,18 +9,18 @@
 		<title>Week 6: The Ground Game &middot; My New Hugo Site</title>
 
 		
-		<link rel="stylesheet" href="/css/style.css">
-		<link rel="stylesheet" href="/css/fonts.css">
+		<link rel="stylesheet" href="/Gov1347-Blog/css/style.css">
+		<link rel="stylesheet" href="/Gov1347-Blog/css/fonts.css">
 		
-		<link rel="icon" href="/favicon.ico"/>
-		<link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
-		<link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
-		<link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+		<link rel="icon" href="/Gov1347-Blog/favicon.ico"/>
+		<link rel="icon" type="image/png" sizes="32x32" href="/Gov1347-Blog/images/favicon-32x32.png">
+		<link rel="icon" type="image/png" sizes="16x16" href="/Gov1347-Blog/images/favicon-16x16.png">
+		<link rel="apple-touch-icon" sizes="180x180" href="/Gov1347-Blog/images/apple-touch-icon.png">
 
 		
 		<link href="" rel="alternate" type="application/rss+xml" title="My New Hugo Site" />
 
-		<script src="/js/darkmode.js"></script>
+		<script src="/Gov1347-Blog/js/darkmode.js"></script>
 	</head>
 
     <body>
@@ -91,7 +91,7 @@
 <h2>Turnout Only Model</h2>
 <p>I first looked at turnout as the single predictor variable for each district. In order to produce 435 predictions, I had to ensure each district had a turnout value. For the majority of districts that fell within the CVAP data set, I divided the total votes for each election and divided by the cvap value. For the districts without a cvap value, I used the national turnout value. For the predicted value, I used the 2018 data because it is the last midterm election.</p>
 <p>The map below shows the predicted seat distribution. Democrats win 222 seats.</p>
-<p><img src="http://example.org/post/2022-10-17-week-6-the-ground-game/index_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<p><img src="https://anneliesq.github.io/Gov1347-Blog/post/2022-10-17-week-6-the-ground-game/index_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
 <p>Democrats gaining the majority of seats in this model correlates to conclusions that I drew last week. Last week, I looked at the “air war” and different spending patterns the parties had toward advertisements. I noticed that Democrats appeared to spend more money than Republicans in competitive districts. This idea relates to <a href="https://hollis.harvard.edu/permalink/f/1mdq5o5/TN_cdi_proquest_journals_2117059848">Enos and Fowler’s piece</a> “Aggregate Effects of Large-Scale Campaigns on Voter Turnout,” in which they argue that campaigning can increase turnout by 7-8 percentage points. Therefore, if advertisement spending is somewhat reflective of overall campaign expenditures in a district, then it makes sense that Democrats would invest in campaigning that results in a higher turnout and delivers a majority in the House (as seen by the prediction model). Ultimately, higher turnout appears to give democrats an advantage.</p>
 <p>However, the average adjusted R-squared among these regressions was 0.021, so extremely low. This means that turnout alone is not a good enough predictor.</p>
 </div>
@@ -103,12 +103,12 @@
 –NAs for expert ratings: use 2018 data which is exhaustive for each district</p>
 <p>This map shows Democrats winning 214 seats.
 The average adjusted R-squared is 0.2346256, which is significantly higher than the turnout only model, however still fairly low.</p>
-<p><img src="http://example.org/post/2022-10-17-week-6-the-ground-game/index_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+<p><img src="https://anneliesq.github.io/Gov1347-Blog/post/2022-10-17-week-6-the-ground-game/index_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
 </div>
 <div id="differnce" class="section level2">
 <h2>Differnce</h2>
 <p>The map below shows the difference between the two models (Turnout only and the all variable model). There were a total of 115 flipped districts, but only a net decrease of 7 seats for democrats.</p>
-<p><img src="http://example.org/post/2022-10-17-week-6-the-ground-game/index_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<p><img src="https://anneliesq.github.io/Gov1347-Blog/post/2022-10-17-week-6-the-ground-game/index_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
 </div>
 </div>
 <div id="updated-prediction" class="section level1">
@@ -131,8 +131,8 @@ The model predicts Democrats winning 214 seats and Republicans with 221 seats.</
 	</div>
 
 	<div class="pagination">
-		<a href="/post/2022-10-11-week-5-the-air-war/" class="left arrow">&#8592;</a>
-		<a href="/post/2022-10-24-week-7-shocks/" class="right arrow">&#8594;</a>
+		<a href="/Gov1347-Blog/post/2022-10-11-week-5-the-air-war/" class="left arrow">&#8592;</a>
+		<a href="/Gov1347-Blog/post/2022-10-24-week-7-shocks/" class="right arrow">&#8594;</a>
 
 		<a href="#" class="top">Top</a>
 	</div>
@@ -142,7 +142,7 @@ The model predicts Democrats winning 214 seats and Republicans with 221 seats.</
         		<footer>
 			
 			<span>
-			&copy; <time datetime="2022-11-08 14:01:33.864097 -0500 EST m=&#43;2.226232376">2022</time> . Made with <a href='https://gohugo.io'>Hugo</a> using the <a href='https://github.com/EmielH/tale-hugo/'>Tale</a> theme.
+			&copy; <time datetime="2022-11-08 14:34:09.315654 -0500 EST m=&#43;0.391031126">2022</time> . Made with <a href='https://gohugo.io'>Hugo</a> using the <a href='https://github.com/EmielH/tale-hugo/'>Tale</a> theme.
 			</span>
 		</footer>
 

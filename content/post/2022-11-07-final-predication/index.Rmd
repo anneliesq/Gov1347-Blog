@@ -2,10 +2,7 @@
 title: 'Final Prediction'
 author: "Annelies Quinton"
 date: '2022-11-07'
-output:
-  html_document:
-    df_print: paged
-  pdf_document: default
+output: pdf_document
 categories: []
 tags: []
 slug: []

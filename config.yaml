@@ -1,8 +1,8 @@
 theme: "tale-hugo"
-baseURL: http://example.org/
+baseURL: https://anneliesq.github.io/Gov1347-Blog/
 languageCode: en-us
 title: My New Hugo Site
-
+ignoreFiles: ["\\.Rmd$", "\\.Rmarkdown$", "_cache$"]
 markup:
   goldmark:
     renderer:
