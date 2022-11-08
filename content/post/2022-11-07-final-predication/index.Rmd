@@ -53,7 +53,7 @@ polls <- read_csv("GenericPolls1942_2020 (1).csv") %>%
 #Current Polls
 currentPolls <- read_csv("generic_ballot_polls (2).csv") %>%
   mutate(days_until_election = mdy(election_date) - mdy(end_date)) %>% 
-  filter(days_until_election > 0) %>%
+   filter(days_until_election > 0) %>%
   filter(days_until_election <= 14) %>% 
   mutate(aveD1 = as.double(mean(dem)),
          aveR1 = as.double(mean(rep))) %>% 
