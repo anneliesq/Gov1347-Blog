@@ -1,0 +1,572 @@
+---
+title: 'Week 6: The Ground Game'
+author: "Annelies Quinton"
+date: '2022-10-17'
+output: pdf_document
+categories: []
+tags: []
+slug: []
+---
+# Intro
+
+For this week’s blog post, I looked at how campaigns can contribute to the outcome of the election. These efforts, characterized as the “ground game” seek to coordinate volunteers through local field offices in hopes of persuading people and supporters to vote [Darr and Levendusky, 2014](https://hollis.harvard.edu/permalink/f/1mdq5o5/TN_cdi_gale_infotracacademiconefile_A375757032). With the vast number of people and resources that go into campaigning, it begs the question of how important is turnout in elections? Can turnout be used to predict elections at a district level? This week I also look at updating my district level model. The main question I consider is how to include districts that have limited data in my model? 
+
+
+# Data
+
+The data I used this week involves a lot of data introduced in previous blog posts. The main new dataset that I use this week is CVAP data. This provides the Citizen Voting Age Population for each data. I use this variable, along with the actual vote numbers during the elections, to get the turnout rate for each district. For districts without CVAP data, I use nationwide turnout rates. With regard to updating my model, I continue to use CPI rates (Week 2), generic ballot polls (Week 3), and expert ratings (Week 4). Finally, I work with the actual House election results by district from 1948 to 2020.  
+
+```{r setup, include = F, message=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+library(tidyverse)
+library(ggplot2)
+library(blogdown)
+library(dplyr)
+library(usmap)
+library(rmapshaper)
+library(sf)
+install.packages("usdata", repos = "http://cran.us.r-project.org")
+library(usdata)
+install.packages("stargazer", repos = "http://cran.us.r-project.org")
+library(stargazer)
+
+# Read in data
+cvap <- read_csv("cvap_district_2012-2020_clean.csv") %>% 
+  rename(district_num = cd) %>%
+  select(district_num, state, cvap, year) 
+
+incumb <- read_csv("incumb_dist_1948-2020 (3).csv") %>% 
+  select("year", "state", "district_num", "president_party", "winner_candidate_inc", "winner_candidate", "DemStatus", "RepStatus") %>% 
+  mutate(winner_candidate = case_when(winner_candidate == "RepCandidate" ~ "R",
+                                      winner_candidate == "DemCandidate" ~ "D")) %>% 
+  mutate(partyMatch = case_when(winner_candidate == president_party ~ 1,
+                                winner_candidate != president_party ~ 0))
+
+housePolls <- read_csv("house_polls_long.csv")
+
+house <- read_csv("house party vote share by district 1948 to 2020.csv") %>% 
+  separate(Area, into = c("district", "district_num"), sep = " ") %>% 
+  rename(state = State,
+         year = raceYear) %>% 
+  mutate(district_num = case_when(district_num == "Large" ~ "AL",
+                                  district_num > 0 ~ district_num))
+ratings <- read_csv("expert_rating.csv") %>% 
+  rename(district_num = district) %>% 
+  select(year, state, district_num, avg_rating)
+
+fundamentalsPolls <- read_csv("fundamentals_polls.Oct.csv") 
+fundamentalsCPI <- fundamentalsPolls %>% 
+  select(year, CPIAUCSL) %>% 
+  distinct(year, CPIAUCSL)
+
+generic <- read_csv("GenericPolls1942_2020 (1).csv") %>% 
+  filter(emonth == 10) %>% 
+  group_by(year) %>% 
+  summarise(ave_dem = ave(dem),
+            ave_rep = ave(rep)) %>% 
+  distinct(year, ave_dem, ave_rep)
+
+expert18 <- read_csv("2018_ratings_share.csv") %>% 
+separate(District, into = c("State", "district"), sep = "-") %>% 
+  mutate(State = abbr2state(State)) %>% 
+  rename("state" = "State") %>% 
+  select('state', 'district', 'avg') %>% 
+  separate(district, into =c("zero", "dis"),sep = "0") %>% 
+  mutate(zero = as.numeric(zero),
+         dis = as.numeric(dis)) %>% 
+  mutate(district_num = case_when(dis < 10 ~ dis,
+                                  zero == 1 ~ 10,
+                                  zero == 2 ~ 20,
+                                  zero == 3 ~ 30,
+                                  zero == 4 ~ 40,
+                                  zero == 5 ~ 50,
+                                  zero > 10 ~ zero)) %>% 
+  mutate(district_num = as.character(district_num)) %>%  
+  select(state, avg, district_num)
+                                  
+  
+df <- house %>% 
+  left_join(ratings, by = c("year", "state", "district_num")) %>% 
+  left_join(incumb, by = c("year", "state", "district_num")) %>% 
+  left_join(cvap, by = c("year", "state", "district_num")) %>% 
+  left_join(fundamentalsCPI, by = "year") %>% 
+  left_join(generic, by = "year") %>% 
+  left_join(expert18, by = c("state", "district_num")) %>% 
+  mutate(turnout = (RepVotes + DemVotes) / cvap) %>% 
+  rename(repStatus = RepStatus.x,
+         demStatus = DemStatus.x) %>% 
+  mutate(incumbent = case_when(repStatus == "Incumbent" & WinnerParty == "R" ~ 0,
+                                repStatus == "Challenger" & WinnerParty == "R" ~ 1,
+                                demStatus == "Incumbent" & WinnerParty == "D" ~ 0,
+                                demStatus == "Challenger" & WinnerParty == "D" ~ 1,
+                                is.na(repStatus) ~ -1,
+                                is.na(demStatus) ~ -1)) %>% 
+  mutate(toss = case_when(avg_rating < 4.5 & avg_rating > 3.5 ~ 1)) %>% 
+  mutate(avg_rating = case_when(state == "Delaware" ~ 7.000000,
+                                state == "North Dakota" ~ 7.000000, 
+                                state == "Montana" ~ 5.333333,
+                                state == "South Dakota" ~ 7.000000,
+                                state == "Vermont" ~ 1.000000,
+                                state == "Wyoming" ~ 7.000000,
+                                state == "Alaska" ~ 5.333333,
+                                is.na(avg_rating) ~ avg,
+                                !is.na(avg_rating) ~ avg_rating)) %>% 
+  select(year, state, district_num, CPIAUCSL, ave_dem, ave_rep, turnout, DemVotesMajorPercent, avg_rating, cvap, incumbent, repStatus, demStatus, WinnerParty, partyMatch)
+
+write_csv(df, "df.csv")
+data18 <- df %>%
+  filter(year == 2018)
+```
+
+```{r, inlcude = F, message=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+# Upload shapefiles
+get_congress_map <- function(cong=114) {
+tmp_file <- tempfile()
+tmp_dir <- tempdir()
+zp <- sprintf("https://cdmaps.polisci.ucla.edu/shp/districts114.zip",cong)
+download.file(zp, tmp_file)
+unzip(zipfile = tmp_file, exdir = tmp_dir)
+fpath <- paste(tmp_dir, sprintf("districtShapes/districts114.shp",cong), sep = "/")
+st_read(fpath)
+}
+
+# merge shapefiles and data18
+cd114 <- get_congress_map(114)
+cd114 <- cd114 %>%
+  mutate(district_num = DISTRICT) %>% 
+  mutate(state = STATENAME) %>% 
+  select(district_num, state) %>% 
+  na.omit
+
+cd114_map <- cd114 %>% 
+  left_join(data18, by=c("state", "district_num"))
+cd114_simp <- ms_simplify(cd114_map, keep = 0.01, keep_shapes = T)
+
+```
+
+
+```{r, include = F, message=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+# Train and Test Data
+nationalTR <- read_csv("turnout.xlsx - A1.csv") %>% 
+  rename("year" = "Year") %>% 
+  rename("CVAPtr" = "CVAP TR") %>% 
+  mutate(year = as.double(year)) %>% 
+  select("year", "CVAPtr")
+```
+
+
+```{r, include = F, message=FALSE}
+
+ # predict(lm_fun_polls.D, test)
+ # 
+ # mean(abs(lm_fun_polls.D$residuals))
+ # plot(modelDF$year, modelDF$D_majorvote_pct,
+ #      type="l")
+ # points(modelDF$year, predict(lm_fun_polls.D, modelDF))
+train_data2 <- df %>% 
+  left_join(nationalTR, by = "year") %>% 
+  
+  filter(year >= 1978) %>%
+  mutate(turnout = case_when(is.na(turnout) ~ (CVAPtr),
+                             !is.na(turnout) ~ turnout)) %>% 
+  select(year, state, district_num, DemVotesMajorPercent, turnout, CPIAUCSL, ave_dem, incumbent, avg_rating, partyMatch, ave_rep) %>%
+  group_by(state, district_num) %>%
+  filter(n() > 1) %>% # Filtering out single data rows
+  group_nest() %>% 
+  mutate(data = map(data, ~unnest(., cols = c()))) %>% 
+  mutate(district_num = as.numeric(district_num)) %>% 
+  mutate(district_num = case_when(is.na(district_num) ~ 1,
+                                  !is.na(district_num) ~ district_num))
+
+
+test_data <- df %>%
+  left_join(nationalTR, by = "year") %>% 
+  filter(year == 2018) %>%
+  mutate(CPIAUCSL = 295.62,
+         ave_dem = 45.4) %>%
+  mutate(turnout = case_when(is.na(turnout) ~ (CVAPtr/100),
+                             !is.na(turnout) ~ turnout)) %>% 
+  select(year, state, district_num, turnout, CPIAUCSL, ave_dem, incumbent, avg_rating, partyMatch) %>%
+  group_by(state, district_num) %>% 
+  group_nest() %>% 
+  mutate(data = map(data, ~unnest(., cols = c()))) %>% 
+  mutate(district_num = as.numeric(district_num)) %>% 
+  mutate(district_num = case_when(is.na(district_num) ~ 1,
+                                  !is.na(district_num) ~ district_num)) 
+
+train_data <- test_data %>% 
+  merge(train_data2, by = c("state", "district_num")) %>% 
+  select(state, district_num, data.y) %>% 
+  rename("data"= "data.y") %>% 
+  na.omit() %>%
+  unnest() %>% 
+  mutate(district_num = as.numeric(district_num)) %>% 
+  mutate(district_num = case_when(is.na(district_num) ~ 1,
+                                  !is.na(district_num) ~ district_num)) %>% 
+  mutate(CPIAUCSL = log(CPIAUCSL)) %>% 
+  mutate(avg_rating = log(avg_rating))
+
+districtRegression <- train_data %>% 
+  left_join(modelDF, by = c("year")) %>% 
+  mutate(turnout = lag(turnout)) %>% 
+  select(state, district_num, year, turnout, ave_dem, incumbent, avg_rating, DSPIC_change_pct, CPIAUCSL.y, DemVotesMajorPercent, ave_rep) 
+
+  district_data <- districtRegression[-1,]
+
+summary(districtRegression)
+write_csv(districtRegression, "districtData.csv")
+plot(log(train_data$incumbent), train_data$DemVotesMajorPercent)
+
+df1 <- train_data %>% 
+  mutate(log = (log(avg_rating))) %>% 
+  mutate(log = case_when(log == "-Inf" ~ -2.4365,
+                         log > 0 ~ log))
+summary(df1)
+fitlog<- lm(df1$log~df1$DemVotesMajorPercent)
+
+fitTR <- lm(df1$avg_rating ~ df1$DemVotesMajorPercent)
+summary(fitlog)
+summary(fitTR)
+test_data <- test_data %>% 
+  unnest() %>% 
+  mutate(CPIAUCSL = log(CPIAUCSL)) %>% 
+  mutate(avg_rating = log(avg_rating))
+
+##
+# log for CPI and ave-rating!!
+
+test_data <- test_data[-182,]
+
+
+districtTest <- test_data %>% 
+  left_join(modelDF, by = c("year")) %>% 
+  distinct(state, district_num, year, turnout, ave_dem, incumbent, avg_rating, partyMatch, DSPIC_change_pct, CPIAUCSL.y)
+
+```
+
+
+```{r, include = F, message=FALSE}
+fit <- lm(DemVotesMajorPercent ~ turnout + ave_dem + CPIAUCSL + avg_rating + incumbent, data = train_data)
+summary(fit)
+      predict <- predict(fit, test_data)
+knitr::opts_chunk$set(echo = FALSE)
+
+# Models for all
+maxD <- max(train_data$district_num)
+
+mat <- data.frame()
+
+states <- test_data %>% 
+  distinct(state)
+
+counter = 1
+for (i in 1:50){
+  for (j in 1:maxD){
+   stateI <- states$state[i]
+    
+    train <- districtRegression %>% 
+      filter(state == stateI) %>% 
+      filter(district_num == j)
+
+    test <- districtTest%>% 
+      filter(state == stateI) %>% 
+      filter(district_num == j) 
+  # test$turnout < test$turnout - 0.08
+  # train$turnout <- train$turnout - 0.08
+    
+    if(nrow(test) != 0) {
+      fit <- lm(DemVotesMajorPercent ~ CPIAUCSL.y+DSPIC_change_pct + ave_dem + turnout, data = train)
+      predict <- predict(fit, test)
+
+      mat[counter, 1] = stateI
+      mat[counter, 2] = j
+      mat[counter, 3] = predict
+      mat[counter, 4] = summary(fit)$adj.r.squared
+      
+      counter <- counter + 1
+    }
+    else {
+      break
+    }
+    
+  }
+}
+  
+seats <- mat %>% 
+  mutate(demMajority = case_when(V3 > 50 ~ 1,
+                                 V3 <= 50 ~ 0)) %>% 
+  mutate(prediction = case_when(V3 > 100 ~ 100,
+                                V3 < 0 ~ 0,
+                                V3 >= 0 & V3 <= 100 ~ V3)) %>% 
+  rename("district_num" = "V2") %>% 
+  rename("state" = "V1") %>% 
+  mutate(district_num = as.character(district_num)) %>% 
+  select(state, district_num, prediction, demMajority, V4)
+
+
+ sum(seats$demMajority, na.rm = T)
+ mean(seats$V4, na.rm = T)
+
+```
+
+```{r, include = F, message=FALSE}
+
+
+# Models for all
+maxD <- max(train_data$district_num)
+
+mat <- data.frame()
+
+states <- test_data %>% 
+  distinct(state)
+
+counter = 1
+for (i in 1:50){
+  for (j in 1:maxD){
+   stateI <- states$state[i]
+    
+    train <- train_data %>% 
+      filter(state == stateI) %>% 
+      filter(district_num == j)
+
+    test <- test_data%>% 
+      filter(state == stateI) %>% 
+      filter(district_num == j)
+
+    if(nrow(test) != 0) {
+      fit <- lm(DemVotesMajorPercent ~ turnout, data = train)
+      predict <- predict(fit, test)
+
+      mat[counter, 1] = stateI
+      mat[counter, 2] = j
+      mat[counter, 3] = predict
+      mat[counter, 4] = summary(fit)$adj.r.squared
+      
+      counter <- counter + 1
+    }
+    else {
+      break
+    }
+    
+  }
+}
+  
+seatsTR <- mat %>% 
+  mutate(demMajority = case_when(V3 > 50 ~ 1,
+                                 V3 <= 50 ~ 0)) %>% 
+  mutate(prediction = case_when(V3 > 100 ~ 100,
+                                V3 < 0 ~ 0,
+                                V3 >= 0 & V3 <= 100 ~ V3)) %>% 
+  rename("district_num" = "V2") %>% 
+  rename("state" = "V1") %>% 
+  mutate(district_num = as.character(district_num)) %>% 
+  select(state, district_num, prediction, demMajority, V4)
+
+
+# sum(seats$demMajority, na.rm = T)
+# mean(seats$V4, na.rm = T)
+
+```
+
+# Turnout
+
+## Turnout Only Model
+I first looked at turnout as the single predictor variable for each district. In order to produce 435 predictions, I had to ensure each district had a turnout value. For the majority of districts that fell within the CVAP data set, I divided the total votes for each election and divided by the cvap value. For the districts without a cvap value, I used the national turnout value. For the predicted value, I used the 2018 data because it is the last midterm election.
+
+The map below shows the predicted seat distribution. Democrats win 222 seats. 
+
+```{r, include = F, message=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+# Map turnout
+cd114_mapTR <- cd114 %>% 
+  left_join(seatsTR, by=c("state", "district_num"))
+cd114_simpTR <- ms_simplify(cd114_mapTR, keep = 0.01, keep_shapes = T)
+```
+
+
+```{r, include = T, message=FALSE}
+ggplot() +
+  geom_sf(data = cd114_simpTR, aes(fill = factor(demMajority))) +
+  scale_fill_manual(values = c("red", "blue"),
+                    labels = c("Dem", "Rep", "At large")) + 
+  labs(fill= "Party") +
+  theme(legend.position = "right") +
+  theme_void() + 
+  coord_sf(xlim = c(-172.27, -66.57), ylim = c(18.55, 71.23), expand = FALSE) + 
+  labs(title = "Predicted Seat Share Distribution (Turnout)") +
+  theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank(),
+        axis.title.y=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank())
+```
+
+Democrats gaining the majority of seats in this model correlates to conclusions that I drew last week. Last week, I looked at the “air war” and different spending patterns the parties had toward advertisements. I noticed that Democrats appeared to spend more money than Republicans in competitive districts. This idea relates to [Enos and Fowler’s piece](https://hollis.harvard.edu/permalink/f/1mdq5o5/TN_cdi_proquest_journals_2117059848) “Aggregate Effects of Large-Scale Campaigns on Voter Turnout,” in which they argue that campaigning can increase turnout by 7-8 percentage points. Therefore, if advertisement spending is somewhat reflective of overall campaign expenditures in a district, then it makes sense that Democrats would invest in campaigning that results in a higher turnout and delivers a majority in the House (as seen by the prediction model). Ultimately, higher turnout appears to give democrats an advantage. 
+
+However, the average adjusted R-squared among these regressions was 0.021, so extremely low. This means that turnout alone is not a good enough predictor. 
+
+## Turnout and Other Variables:
+
+I then reintroduced my previous variables to the model. This includes average polling, incumbency, and expert ratings. To ensure each district could be modeled, I had to handle NAs. The following shows my thought process:
+  --NAs for polling: use nationwide generic ballot for that year
+  --NAs for incumbency: code as a -1
+  --NAs for expert ratings: use 2018 data which is exhaustive for each        district
+  
+This map shows Democrats winning 214 seats. 
+The average adjusted R-squared is 0.2346256, which is significantly higher than the turnout only model, however still fairly low. 
+
+```{r, include = T, message=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+# Map all
+cd114_map <- cd114 %>% 
+  left_join(seats, by=c("state", "district_num"))
+cd114_simp <- ms_simplify(cd114_map, keep = 0.01, keep_shapes = T)
+
+```
+```{r, include = T, message = FALSE}
+ggplot() +
+  geom_sf(data = cd114_simp, aes(fill = factor(demMajority))) +
+  scale_fill_manual(values = c( "red", "blue"),
+                    labels = c("Dem", "Rep", "At large")) + 
+  labs(fill= "Party") +
+  theme(legend.position = "right") +
+  theme_void() + 
+  coord_sf(xlim = c(-172.27, -66.57), ylim = c(18.55, 71.23), expand = FALSE) + 
+  labs(title = "Predicted Seat Share Distribution (All Variables)") +
+  theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank(),
+        axis.title.y=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank())
+```
+
+
+## Differnce
+The map below shows the difference between the two models (Turnout only and the all variable model). There were a total of 115 flipped districts, but only a net decrease of 7 seats for democrats. 
+
+```{r, inlcude = F, message=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+# Map difference
+difference <- seatsTR %>% 
+  merge(seats, c("state", "district_num")) %>% 
+  mutate(different = case_when(demMajority.x != demMajority.y ~ 1)) %>%
+  mutate(different = as.character(different)) %>% 
+  select(state, district_num, different) %>% 
+  na.omit()
+
+cd114_mapD <- cd114 %>% 
+  left_join(difference, by=c("state", "district_num"))
+cd114_simpD <- ms_simplify(cd114_mapD, keep = 0.01, keep_shapes = T)
+```
+
+
+```{r, inlcude = T, message=FALSE}
+ggplot() +
+  geom_sf(data = cd114_simpD, aes(fill = factor(different))) +
+  scale_fill_manual(values = "white") + 
+  scale_fill_discrete(labels= c("Flip", "Same"))+
+  labs(fill= "District") +
+  theme(legend.position = "right") +
+  theme_void() + 
+  coord_sf(xlim = c(-172.27, -66.57), ylim = c(18.55, 71.23), expand = FALSE) + 
+  labs(title = "Difference Between Turnout Model and All Variable Model") +
+  theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank(),
+        axis.title.y=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank())
+```
+
+
+# Updated Prediction
+For this week, I will be using the results from the previous model to update my prediction. 
+The model predicts Democrats winning 214 seats and Republicans with 221 seats. 
+
+# Conclusion and Limitations
+This week I looked at adding turnout to my model. Turnout alone was a poor predictor. This can be attributed to numerous factors. Some of the most prominent include that for many districts, I used the national turnout rate which was probably much higher than most of the small, rural districts where data is limited. Further, with limited years, the data had lots of fluctuation and overall inconsistencies that could contribute to its lack of predictive power. 
+
+This is the first week that my model has predicted Republicans winning. This appears to be more in line with what other major polls are showing, such as [FiveThirtyEight](https://projects.fivethirtyeight.com/2022-election-forecast/house/) and [The Economist](https://www.economist.com/interactive/us-midterms-2022/forecast/house). 
+
+# Moving Forward
+In the future, I will continue to update my district level model. With a low adjusted R-squared, I will be looking to make my variables more predictive. One area that I think will help will be to continue considering how to deal with NAs. 
+
+```{r, include = F}
+# ggplot() +
+#   geom_sf(data = cd114_simp, aes(fill = factor(incumbent))) +
+#   scale_fill_manual(values = c("salmon","red","red4","skyblue","royalblue4","royalblue4"),name= "Incumbent") + 
+#   theme(legend.position = "right") +
+#   theme_void() + 
+#   coord_sf(xlim = c(-172.27, -66.57), ylim = c(18.55, 71.23), expand = FALSE) + 
+#   labs(title = "Total Money Spent on ads in 2016 (Democrats)") +
+#   theme(axis.title.x=element_blank(),
+#         axis.text.x=element_blank(),
+#         axis.ticks.x=element_blank(),
+#         axis.title.y=element_blank(),
+#         axis.text.y=element_blank(),
+#         axis.ticks.y=element_blank())
+```
+
+```{r, include = F}
+# ggplot() +
+#   geom_sf(data = cd114_simp, aes(fill = factor(incumbent))) +
+#   scale_fill_manual(values = c("salmon", "red", "red4", "skyblue", "royalblue", "royalblue4"), name = "Turnout Rate") + 
+#   theme(legend.position = "right") +
+#   theme_void() + 
+#   coord_sf(xlim = c(-172.27, -66.57), ylim = c(18.55, 71.23), expand = FALSE) + 
+#   labs(title = "Total Money Spent on ads in 2016 (Democrats)") +
+#   theme(axis.title.x=element_blank(),
+#         axis.text.x=element_blank(),
+#         axis.ticks.x=element_blank(),
+#         axis.title.y=element_blank(),
+#         axis.text.y=element_blank(),
+#         axis.ticks.y=element_blank())
+```
+
+
+```{r, include = F}
+# ggplot() +
+#   geom_sf(data = cd114_simp, aes(fill = turnout),
+#           inherit.aes = FALSE, alpha = 0.9) +
+#   scale_fill_gradient2(low = "white", high = "red", 
+#                        limits = c(0, 1),
+#                        name = "Turnout") + 
+#   theme(legend.position = "right") +
+#   theme_void() + 
+#   coord_sf(xlim = c(-172.27, -66.57), ylim = c(18.55, 71.23), expand = FALSE) + 
+#   labs(title = "Total Money Spent on ads in 2016 (Democrats)") +
+#   theme(axis.title.x=element_blank(),
+#         axis.text.x=element_blank(),
+#         axis.ticks.x=element_blank(),
+#         axis.title.y=element_blank(),
+#         axis.text.y=element_blank(),
+#         axis.ticks.y=element_blank())
+```
+
+```{r, include = F}
+# ggplot() +
+#   geom_sf(data = cd114_simp, aes(fill = factor(toss))) +
+#   scale_fill_manual(values = c("white", "red"),
+#                        name = "Ratings") + 
+#   theme(legend.position = "right") +
+#   theme_void() + 
+#   coord_sf(xlim = c(-172.27, -66.57), ylim = c(18.55, 71.23), expand = FALSE) + 
+#   labs(title = "Total Money Spent on ads in 2016 (Democrats)") +
+#   theme(axis.title.x=element_blank(),
+#         axis.text.x=element_blank(),
+#         axis.ticks.x=element_blank(),
+#         axis.title.y=element_blank(),
+#         axis.text.y=element_blank(),
+#         axis.ticks.y=element_blank())
+```
+

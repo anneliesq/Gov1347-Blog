@@ -1,0 +1,8 @@
+---
+title: 'Week 7: Shocks and Demographics'
+author: Annelies Quinton
+date: '2022-10-26'
+slug: []
+categories: []
+tags: []
+---

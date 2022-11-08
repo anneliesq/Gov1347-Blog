@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+		
+		
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+		<title>Week 6: The Ground Game &middot; My New Hugo Site</title>
+
+		
+		<link rel="stylesheet" href="/css/style.css">
+		<link rel="stylesheet" href="/css/fonts.css">
+		
+		<link rel="icon" href="/favicon.ico"/>
+		<link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+		<link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
+		<link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+
+		
+		<link href="" rel="alternate" type="application/rss+xml" title="My New Hugo Site" />
+
+		<script src="/js/darkmode.js"></script>
+	</head>
+
+    <body>
+        		<nav class="nav">
+			<div class="nav-container">
+				<a href="/">
+					
+						<h2 class="nav-title">My New Hugo Site</h2>
+					
+				</a>
+				<ul>
+    
+    
+</ul>
+			</div>
+		</nav>
+
+        <div id="darkModeToggle" onclick="toggleDarkMode()">
+  &#9680; 
+</div>
+
+        
+
+<main>
+	
+
+
+        <div class="post">
+		<div class="post-info">
+    <span>Written by</span>
+        Annelies Quinton
+        <br>
+        <span>on&nbsp;</span><time datetime="2022-10-17 00:00:00 &#43;0000 UTC">October 17, 2022</time>
+</div>
+
+		<h1 class="post-title">Week 6: The Ground Game</h1>
+<div class="post-line"></div>
+
+		
+
+		
+
+
+<div id="intro" class="section level1">
+<h1>Intro</h1>
+<p>For this week’s blog post, I looked at how campaigns can contribute to the outcome of the election. These efforts, characterized as the “ground game” seek to coordinate volunteers through local field offices in hopes of persuading people and supporters to vote <a href="https://hollis.harvard.edu/permalink/f/1mdq5o5/TN_cdi_gale_infotracacademiconefile_A375757032">Darr and Levendusky, 2014</a>. With the vast number of people and resources that go into campaigning, it begs the question of how important is turnout in elections? Can turnout be used to predict elections at a district level? This week I also look at updating my district level model. The main question I consider is how to include districts that have limited data in my model?</p>
+</div>
+<div id="data" class="section level1">
+<h1>Data</h1>
+<p>The data I used this week involves a lot of data introduced in previous blog posts. The main new dataset that I use this week is CVAP data. This provides the Citizen Voting Age Population for each data. I use this variable, along with the actual vote numbers during the elections, to get the turnout rate for each district. For districts without CVAP data, I use nationwide turnout rates. With regard to updating my model, I continue to use CPI rates (Week 2), generic ballot polls (Week 3), and expert ratings (Week 4). Finally, I work with the actual House election results by district from 1948 to 2020.</p>
+<pre><code>## Warning in sprintf(&quot;https://cdmaps.polisci.ucla.edu/shp/districts114.zip&quot;, :
+## one argument not used by format &#39;https://cdmaps.polisci.ucla.edu/shp/
+## districts114.zip&#39;</code></pre>
+<pre><code>## Warning in sprintf(&quot;districtShapes/districts114.shp&quot;, cong): one argument not
+## used by format &#39;districtShapes/districts114.shp&#39;</code></pre>
+<pre><code>## Reading layer `districts114&#39; from data source 
+##   `/private/var/folders/ds/13_jz5hd0y719qz96prb8mzm0000gn/T/RtmpOiODWq/districtShapes/districts114.shp&#39; 
+##   using driver `ESRI Shapefile&#39;
+## Simple feature collection with 436 features and 15 fields (with 1 geometry empty)
+## Geometry type: MULTIPOLYGON
+## Dimension:     XY
+## Bounding box:  xmin: -179.1473 ymin: 18.91383 xmax: 179.7785 ymax: 71.35256
+## Geodetic CRS:  NAD83</code></pre>
+</div>
+<div id="turnout" class="section level1">
+<h1>Turnout</h1>
+<div id="turnout-only-model" class="section level2">
+<h2>Turnout Only Model</h2>
+<p>I first looked at turnout as the single predictor variable for each district. In order to produce 435 predictions, I had to ensure each district had a turnout value. For the majority of districts that fell within the CVAP data set, I divided the total votes for each election and divided by the cvap value. For the districts without a cvap value, I used the national turnout value. For the predicted value, I used the 2018 data because it is the last midterm election.</p>
+<p>The map below shows the predicted seat distribution. Democrats win 222 seats.</p>
+<p><img src="http://example.org/post/2022-10-17-week-6-the-ground-game/index_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<p>Democrats gaining the majority of seats in this model correlates to conclusions that I drew last week. Last week, I looked at the “air war” and different spending patterns the parties had toward advertisements. I noticed that Democrats appeared to spend more money than Republicans in competitive districts. This idea relates to <a href="https://hollis.harvard.edu/permalink/f/1mdq5o5/TN_cdi_proquest_journals_2117059848">Enos and Fowler’s piece</a> “Aggregate Effects of Large-Scale Campaigns on Voter Turnout,” in which they argue that campaigning can increase turnout by 7-8 percentage points. Therefore, if advertisement spending is somewhat reflective of overall campaign expenditures in a district, then it makes sense that Democrats would invest in campaigning that results in a higher turnout and delivers a majority in the House (as seen by the prediction model). Ultimately, higher turnout appears to give democrats an advantage.</p>
+<p>However, the average adjusted R-squared among these regressions was 0.021, so extremely low. This means that turnout alone is not a good enough predictor.</p>
+</div>
+<div id="turnout-and-other-variables" class="section level2">
+<h2>Turnout and Other Variables:</h2>
+<p>I then reintroduced my previous variables to the model. This includes average polling, incumbency, and expert ratings. To ensure each district could be modeled, I had to handle NAs. The following shows my thought process:
+–NAs for polling: use nationwide generic ballot for that year
+–NAs for incumbency: code as a -1
+–NAs for expert ratings: use 2018 data which is exhaustive for each district</p>
+<p>This map shows Democrats winning 214 seats.
+The average adjusted R-squared is 0.2346256, which is significantly higher than the turnout only model, however still fairly low.</p>
+<p><img src="http://example.org/post/2022-10-17-week-6-the-ground-game/index_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+</div>
+<div id="differnce" class="section level2">
+<h2>Differnce</h2>
+<p>The map below shows the difference between the two models (Turnout only and the all variable model). There were a total of 115 flipped districts, but only a net decrease of 7 seats for democrats.</p>
+<p><img src="http://example.org/post/2022-10-17-week-6-the-ground-game/index_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+</div>
+</div>
+<div id="updated-prediction" class="section level1">
+<h1>Updated Prediction</h1>
+<p>For this week, I will be using the results from the previous model to update my prediction.
+The model predicts Democrats winning 214 seats and Republicans with 221 seats.</p>
+</div>
+<div id="conclusion-and-limitations" class="section level1">
+<h1>Conclusion and Limitations</h1>
+<p>This week I looked at adding turnout to my model. Turnout alone was a poor predictor. This can be attributed to numerous factors. Some of the most prominent include that for many districts, I used the national turnout rate which was probably much higher than most of the small, rural districts where data is limited. Further, with limited years, the data had lots of fluctuation and overall inconsistencies that could contribute to its lack of predictive power.</p>
+<p>This is the first week that my model has predicted Republicans winning. This appears to be more in line with what other major polls are showing, such as [FiveThirtyEight])(<a href="https://projects.fivethirtyeight.com/2022-election-forecast/house/" class="uri">https://projects.fivethirtyeight.com/2022-election-forecast/house/</a>) and <a href="https://www.economist.com/interactive/us-midterms-2022/forecast/house">The Economist</a>.</p>
+</div>
+<div id="moving-forward" class="section level1">
+<h1>Moving Forward</h1>
+<p>In the future, I will continue to update my district level model. With a low adjusted R-squared, I will be looking to make my variables more predictive. One area that I think will help will be to continue considering how to deal with NAs.</p>
+</div>
+
+
+		
+	</div>
+
+	<div class="pagination">
+		<a href="/post/2022-10-11-week-5-the-air-war/" class="left arrow">&#8592;</a>
+		<a href="/post/2022-10-24-week-7-shocks/" class="right arrow">&#8594;</a>
+
+		<a href="#" class="top">Top</a>
+	</div>
+</main>
+
+
+        		<footer>
+			
+			<span>
+			&copy; <time datetime="2022-11-08 14:01:33.864097 -0500 EST m=&#43;2.226232376">2022</time> . Made with <a href='https://gohugo.io'>Hugo</a> using the <a href='https://github.com/EmielH/tale-hugo/'>Tale</a> theme.
+			</span>
+		</footer>
+
+    </body>
+</html>

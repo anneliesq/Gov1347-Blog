@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>My New Hugo Site</title>
+    <link>http://example.org/</link>
+    <description>Recent content on My New Hugo Site</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 24 Oct 2022 00:00:00 +0000</lastBuildDate><atom:link href="http://example.org/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Week 7: Shocks</title>
+      <link>http://example.org/post/2022-10-24-week-7-shocks/</link>
+      <pubDate>Mon, 24 Oct 2022 00:00:00 +0000</pubDate>
+      
+      <guid>http://example.org/post/2022-10-24-week-7-shocks/</guid>
+      <description>Intro As the Midterms get closer, I have to start being more critical of my model and put the finishing touches on it. This is my last blog post before I share my final prediction and model. For this reason, this week I mainly look at improving my model, by adjusting my variables. I decided to revert back to my national vote share prediction from earlier blogs after last week.</description>
+    </item>
+    
+    <item>
+      <title>Week 6: The Ground Game</title>
+      <link>http://example.org/post/2022-10-17-week-6-the-ground-game/</link>
+      <pubDate>Mon, 17 Oct 2022 00:00:00 +0000</pubDate>
+      
+      <guid>http://example.org/post/2022-10-17-week-6-the-ground-game/</guid>
+      <description>Intro For this week’s blog post, I looked at how campaigns can contribute to the outcome of the election. These efforts, characterized as the “ground game” seek to coordinate volunteers through local field offices in hopes of persuading people and supporters to vote Darr and Levendusky, 2014. With the vast number of people and resources that go into campaigning, it begs the question of how important is turnout in elections?</description>
+    </item>
+    
+    <item>
+      <title>Week 5: The Air War</title>
+      <link>http://example.org/post/2022-10-11-week-5-the-air-war/</link>
+      <pubDate>Tue, 11 Oct 2022 00:00:00 +0000</pubDate>
+      
+      <guid>http://example.org/post/2022-10-11-week-5-the-air-war/</guid>
+      <description>Intro For this week’s blog post, I looked at the role of advertisements in predicting election outcomes. Media can serve to persuade and convince voters to turnout through a variety of methods. This can create an “air war” as each party attempts to have their media prevail. What is the scale of this “war”? Well, in 2018, it is estimated that in total $529,716,980 were spent on ads (WMP: ads_issues_2012-2018.</description>
+    </item>
+    
+    <item>
+      <title>Week 4: Expert Ratings</title>
+      <link>http://example.org/post/2022-10-03-week-4-incumbency-and-expert-rating/</link>
+      <pubDate>Mon, 03 Oct 2022 00:00:00 +0000</pubDate>
+      
+      <guid>http://example.org/post/2022-10-03-week-4-incumbency-and-expert-rating/</guid>
+      <description>This week, I looked at the role of expert rankings at a district level. This is an extension to last week’s focus on polling and incorporating variables into my model that have credibility from others in the election predicting sphere. The questions that directed my research this week were: how accurate are expert rankings, how can expert rankings be compared to actual vote share, and what does this comparison look like at a district level?</description>
+    </item>
+    
+    <item>
+      <title>Week 3: Polling</title>
+      <link>http://example.org/post/2022-09-26-week-3-polling/</link>
+      <pubDate>Mon, 26 Sep 2022 00:00:00 +0000</pubDate>
+      
+      <guid>http://example.org/post/2022-09-26-week-3-polling/</guid>
+      <description>In this week’s blog post, I looked at how well polls can determine election results. Although polling is ingrained in the election sphere ambiguity arises around the reliability of the polls and their overall meaning. Considerations such as who is polled, how many people are polled, what the question driving the poll is, and how the poll is interpreted reflect a limited list of ways polls can differ (Gelman and King, 1976).</description>
+    </item>
+    
+    <item>
+      <title>Week 2: Economic Fundamentals</title>
+      <link>http://example.org/post/2022-09-19-week-2-economic-fundamentals/</link>
+      <pubDate>Mon, 19 Sep 2022 00:00:00 +0000</pubDate>
+      
+      <guid>http://example.org/post/2022-09-19-week-2-economic-fundamentals/</guid>
+      <description>For this week’s blog post, I am looking at the role of the economy in incumbency vote share. The economic variables studied in this post include GDP, RDI, and unemployment rate. These variables are broken down by economic quarter.The question that is framing this week’s post is: What role can economic variables play in predicting incumbency vote share? How does this vary across the different economic variables and between fiscal quarters?</description>
+    </item>
+    
+    <item>
+      <title>Week 1: Past Elections and Gerrymandering</title>
+      <link>http://example.org/post/2022-09-12-week-1-introduction/</link>
+      <pubDate>Mon, 12 Sep 2022 00:00:00 +0000</pubDate>
+      
+      <guid>http://example.org/post/2022-09-12-week-1-introduction/</guid>
+      <description>Welcome to my weekly election blog for the upcoming 2022 midterms in November.The goal of this blog is to create a prediction for both the seat share and the popular vote for each party within the House of Representatives. I will use this blog to explain changes and additions to my prediction model. I will also provide graphics that support my claims and data reasoning.
+This first post serves as an introduction to this upcoming election by analyzing the outcomes of past recent midterms.</description>
+    </item>
+    
+    <item>
+      <title>Hello R Markdown</title>
+      <link>http://example.org/post/2020-12-01-r-rmarkdown/</link>
+      <pubDate>Tue, 01 Dec 2020 21:13:14 -0500</pubDate>
+      
+      <guid>http://example.org/post/2020-12-01-r-rmarkdown/</guid>
+      <description>R Markdown This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see http://rmarkdown.rstudio.com.
+You can embed an R code chunk like this:
+summary(cars) ## speed dist ## Min. : 4.0 Min. : 2.00 ## 1st Qu.:12.0 1st Qu.: 26.00 ## Median :15.0 Median : 36.00 ## Mean :15.4 Mean : 42.98 ## 3rd Qu.</description>
+    </item>
+    
+  </channel>
+</rss>

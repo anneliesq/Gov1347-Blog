@@ -1,0 +1,290 @@
+---
+title: 'Week 5: The Air War'
+author: "Annelies Quinton"
+date: '2022-10-11'
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+categories: []
+tags: []
+slug: []
+---
+# Intro
+For this week’s blog post, I looked at the role of advertisements in predicting election outcomes. Media can serve to persuade and convince voters to turnout through a variety of methods. This can create an “air war” as each party attempts to have their media prevail. What is the scale of this “war”? Well, in 2018, it is estimated that in total $529,716,980 were spent on ads (WMP: ads_issues_2012-2018.csv).  This leads to the question of what differences arise between the Democrat and Republican parties’ use of media? What does the “air war” look like at a district level? Finally, how strong of a predictor is money spent on advertisements on election outcomes? 
+
+# Data
+To answer these questions, I primarily looked at data from the Wesleyan Media Project. The data set included all political ads ran between 2012 and 2018. The variables I used in this  data set include the state, district, and year of each ad. I also looked at the estimated cost and the party associated with each ad. To build off the data from past weeks, I included average expert rankings and actual vote share for each district. With this data, I first look at the money spent on ads in each district broken down by party. I then predicted the democratic vote share outcome in each district by modeling the average cost spent on ads and the expert rankings (continuing last week’s data). Finally, I provide an update on my prediction for nationwide party vote share. 
+
+```{r setup, include = F, message=FALSE, warning=FALSE}
+# Load Packages
+# Hide code output
+knitr::opts_chunk$set(echo = FALSE)
+# Loading Packages
+install.packages("tidyverse", repos = "http://cran.us.r-project.org")
+library(tidyverse)
+install.packages("ggplot2", repos = "http://cran.us.r-project.org")
+library(ggplot2)
+install.packages("blogdown", repos = "http://cran.us.r-project.org")
+library(blogdown)
+library(dplyr)
+library(usmap)
+library(rmapshaper)
+library(sf)
+install.packages("usdata", repos = "http://cran.us.r-project.org")
+library(usdata)
+```
+
+```{r, include = F, message=FALSE, warning=FALSE}
+## Had to do in separate file because so large
+# # Read in data
+# issues 
+# ads_2006_2018
+house <- read_csv("house party vote share by district 1948 to 2020.csv")
+# 
+# write_rds(ads, "ads_issues_2012-2018.rds", compress = "xz")
+# 
+# # Sorting Issues Data
+# issuesAll <- issues %>% 
+#   rename("year" = "cycle") %>%  
+#   select (state, district, party, ad_tone, ad_purpose, est_cost, year) %>% 
+#   group_by(state, district, year) %>% 
+#   summarise(ave_cost = ave(est_cost))
+# 
+# issues2016 <- issues %>% 
+#   filter(cycle == 2016) %>% 
+#   mutate(democrat = case_when(party == "Democrat" ~ 1,
+#                               party == "Republican" ~ 0)) %>% 
+#   select ("airdate", "state", "district", "party","ad_tone", "ad_purpose", "est_cost","democrat") 
+#   
+# # Sorting House Data
+# houseDistrict <- house %>% 
+#   separate(Area, c("District", "district"), " ") %>% 
+#   mutate (state = State) %>% 
+#   select("district", "state", "RepVotes", "DemVotes")
+# 
+houseDistrict18 <- house %>%
+  separate(Area, c("District", "district"), " ") %>%
+  mutate (state = State) %>%
+  filter(raceYear == 2018) %>%
+  select("district", "state", "RepVotes", "DemVotes", "DemVotesMajorPercent")
+# 
+# 
+# 
+# # Merging data
+# 
+# ads_votes16 <- issues2016 %>% 
+#   left_join(houseDistrict16, by = c('state', 'district'))
+# 
+# df_ads_votes16 = ads_votes16 %>% 
+#   mutate(dem_ads = case_when(party  == "Democrat" ~ est_cost,
+#                              party != "Democrat" ~ 0)) %>% 
+#   mutate(rep_ads = case_when(party  == "Republican" ~ est_cost,
+#                              party != "Republican" ~ 0)) %>% 
+#   group_by(state, district) %>% 
+#   summarise(ave_cost = ave(est_cost),
+#             ave_ads = length(district),
+#             total_dem = sum(dem_ads),
+#             total_rep = sum(rep_ads))
+# df_ads_votes16U <- unique(df_ads_votes16)
+
+# ads_votes_all <- issuesAll %>% 
+#   left_join(houseDistrict, by = c('state', 'district'))
+# 
+# df_ads_votes_all = ads_votes_all %>% 
+#   group_by(state, district, RepVotes, DemVotes) %>% 
+#   summarise(total_cost = ave(est_cost),
+#             ave_ads = length(district),
+#             total_dem = sum(democrat),
+#             total_rep = length(district) - sum(democrat))
+df_ads_votes16U <- read_csv("df_ads_votes16U.csv") %>% 
+  mutate(district = as.character(district))  
+```
+
+
+```{r, include =F, message=FALSE, warning=FALSE}
+# Geographic data
+get_congress_map <- function(cong=114) {
+tmp_file <- tempfile()
+tmp_dir <- tempdir()
+zp <- sprintf("https://cdmaps.polisci.ucla.edu/shp/districts114.zip",cong)
+download.file(zp, tmp_file)
+unzip(zipfile = tmp_file, exdir = tmp_dir)
+fpath <- paste(tmp_dir, sprintf("districtShapes/districts114.shp",cong), sep = "/")
+st_read(fpath)
+}
+
+cd114 <- get_congress_map(114)
+cd114 <- cd114 %>%
+  mutate(district = DISTRICT) %>% 
+  mutate(state = STATENAME) %>% 
+  select(district, state) %>% 
+  na.omit
+
+cd114_map <- cd114 %>% 
+  left_join(df_ads_votes16U, by=c("state", "district"))
+cd114_simp <- ms_simplify(cd114_map, keep = 0.01, keep_shapes = T)
+```
+# Money Spent on Ads
+## Democrats
+
+In the map below, I show the total estimated cost of advertisements Democrats spent in each district during the 2016 election. 
+```{r, include = T, message=FALSE, warning=FALSE}
+ggplot() +
+  geom_sf(data = cd114_simp, aes(fill = total_dem),
+          inherit.aes = FALSE, alpha = 0.9) +
+  scale_fill_gradient(low = "white", high = "red", 
+                       limits = c(0,8630660),
+                       name = "Cost") +
+  theme_void() + 
+  coord_sf(xlim = c(-172.27, -66.57), ylim = c(18.55, 71.23), expand = FALSE) + 
+  labs(title = "Total Money Spent on ads in 2016 (Democrats)") +
+  theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank(),
+        axis.title.y=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank())
+```
+
+## Republicans
+In the map below, I show the total estimated cost of advertisements Republicans spent in each district during the 2016 election. 
+
+```{r, include = T}
+ggplot() +
+  geom_sf(data = cd114_simp, aes(fill = total_rep),
+          inherit.aes = FALSE, alpha = 0.9) +
+  scale_fill_gradient(low = "white", high = "red", 
+                       limits = c(0,8630660),
+                       name = "Cost") +
+  theme_void() + 
+  coord_sf(xlim = c(-172.27, -66.57), ylim = c(18.55, 71.23), expand = FALSE) + 
+  labs(title = "Total Money Spent on ads in 2016 (Republicans)")+
+  theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank(),
+        axis.title.y=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank())
+```
+## Comparison
+
+These maps show that, generally, the parties focus on the same districts with their advertisements. The districts with the greatest difference between party ads include Arizona 1, New York 19, and Texas 23. For these districts, the Democratic party spent more than the Republican. Additionally, from this map we see that the most money on ads was spent in Minnesota 8. Although these maps give a general idea of the trends for how each party spends ad money, a better way to do this would have been to map the number of ads in each district. This is because the costs are only estimates and do not provide a great display of the effect of the prevalence of ads in the district. 
+
+
+# District Level Modeling
+To see how well of a predictor ad cost is for democratic vote share, I ran a regression model for each district. Due to the lack of data from 2022, I looked at all years except 2018 and used 2018 as the predictor data. The results can be seen in the plot below. The red column represents the predicted democratic vote share and the blue line represents the actual vote share. 
+
+```{r, include = F, message=FALSE, warning=FALSE}
+dem_results <- house %>% 
+  select(raceYear, State, Area, DemVotesMajorPercent) %>% 
+  rename("year" = "raceYear") %>% 
+  rename("state" = "State") %>% 
+  separate(Area, into = c("area", "district"), sep = " ") %>% 
+  select(-area) %>% 
+  mutate(district = case_when(
+    district == "Large" ~ "AL",
+    TRUE ~ district
+  ))
+
+expert_ratings <- read_csv("expert_rating.csv") %>% 
+  select(year, state, district, avg_rating)
+
+issuesAll <- read_csv("issuesAll.csv")
+
+adsDems <-   issuesAll %>% 
+  left_join(expert_ratings, by = c('state', 'district', 'year')) 
+adsDemsU <- unique(adsDems)
+
+# From Yao
+train_data <- adsDemsU %>% 
+  filter(year != 2018) %>% 
+  # left join as there aren't ratings for every district
+  left_join(dem_results, by = c('state', 'district', 'year')) %>%  
+  group_by(state, district) %>%
+  na.omit() %>% 
+  filter(n() > 1) %>% # Filtering out single data rows
+  group_nest() %>% 
+  mutate(data = map(data, ~unnest(., cols = c()))) 
+  
+train_data %>% unnest(data)
+
+test_data <- adsDemsU %>% 
+  filter(year == 2018) %>% 
+  group_by(state, district) %>% 
+  group_nest() %>% 
+  mutate(data = map(data, ~unnest(., cols = c()))) %>% 
+  na.omit()
+
+
+models <- train_data %>% 
+  mutate(model = map(data, ~lm(DemVotesMajorPercent ~  ave_cost,# this is where you add your other variables
+                                  data = .x))) %>%  
+  select(-data)
+
+train_data$DemVotesMajorPercent
+model_results <- models %>% 
+  mutate(r_squared = map_dbl(model, ~summary(.x)$r.squared))
+
+pred_2022 <- test_data %>%
+  
+  # inner join as there may not be historical models for some districts
+  inner_join(models, by = c("state", "district")) %>% 
+  mutate(pred = map_dbl(.x = model, .y = data, ~predict(object = .x, newdata = as.data.frame(.y)))) %>%
+  select(state, district, pred) %>% 
+  mutate(demMajority =  case_when(pred > 50 ~ 1,
+                                  pred < 50 ~ 0)) %>% 
+  mutate(prediction = case_when(pred > 100 ~ 100,
+                          pred < 0 ~ 0,
+                          pred <= 100 || pred >= 0 ~ pred))
+```
+
+```{r, message=FALSE, warning=FALSE}
+pred_2022_plot <- pred_2022 %>% 
+  unite('Merged', state:district, remove = FALSE) %>% 
+  left_join(houseDistrict18, by = c("state", "district")) 
+
+ggplot(pred_2022_plot) +
+  geom_col(aes(x=Merged, y=prediction), 
+           fill = "blue", width = 0.2) +
+  geom_col(aes(x=Merged, y=DemVotesMajorPercent), 
+           alpha = 0.3, fill = "red", width = 0.6) +
+  theme(axis.text.x  = element_text(angle=90))
+fit <-lm(DemVotesMajorPercent ~ prediction, pred_2022_plot)
+summary(fit)
+```
+## Analysis
+Visually, it is apparent that there is a lot of variation between the predicted and actual value. This is confirmed by the extremely low R squared value of approximately 0. Additionally, there are some predicted values that are over 100% and less than 0%. This is very indicative of a faulty model and can possibly be attributed to the inconsistency in spending patterns over the years. Further, the prediction model does not consider if there is no challenger. This is a problem because for those districts, the vote share will be near the extremes. However, my model predicts most of the districts to be around 50%. 
+
+When I add in expert ratings from last week, the regression shows a slight positive correlation between money spent and democratic vote share. However, the R squared value is 1, making this model have no significance. 
+
+Overall, the usage of ad costs proves not to perform well as a predictive variable. This observation has some similarities with the results in the piece, “How Large and Long-lasting Are the Persuasive Effects of Televised Campaign Ads?” In this article they claim that the long-term effects of advertisements are not that strong (Gerber et al., 2011). This could be indicative of why there is such a weak correlation shown in my model. 
+
+# Updated Natiowide Model
+
+Instead of incorporating ads into my model, I chose to revert back to my model for nationwide vote share from week 3. I updated the polls from [538’s generic poll](https://projects.fivethirtyeight.com/polls/generic-ballot/). The model predicts republicans having 48.31384 of the vote share and democrats having 48.4402. This is a much smaller margin than last week, but still has democrats winning over republicans. 
+
+```{r, message=FALSE, warning=FALSE}
+expert_ratings2018 <- read_csv("2018_ratings_share.csv") %>% 
+  separate(District, into = c("state", "district"), sep = "-") %>% 
+  mutate(state = abbr2state(state)) %>% 
+  select('state', 'district', 'avg')
+
+fundamentals_polls.Oct <- read_csv("fundamentals_polls.Oct.csv")
+
+
+lm_fun_polls.R <- lm(R_totalvote_pct ~ CPIAUCSL.ave + R_support, data = fundamentals_polls.Oct)
+summary(lm_fun_polls.R)
+
+lm_fun_polls.D <- lm(D_totalvote_pct ~ CPIAUCSL.ave + D_support, data = fundamentals_polls.Oct)
+summary(lm_fun_polls.D)
+
+data_2022.R <- data.frame(CPIAUCSL.ave = 295.62, R_support = 44.5)
+predict(lm_fun_polls.R, newdata = data_2022.R) 
+# 48.31384
+
+data_2022.D <- data.frame(CPIAUCSL.ave = 295.62, D_support = 45.4)
+predict(lm_fun_polls.D, newdata = data_2022.D)
+# 48.4402 
+```
+

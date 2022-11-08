@@ -1,0 +1,201 @@
+---
+title: 'Week 7: Shocks'
+author: "Annelies Quinton" 
+date: '2022-10-24'
+output:
+  pdf_document: default
+categories: []
+tags: []
+slug: []
+---
+
+# Intro
+
+As the Midterms get closer, I have to start being more critical of my model and put the finishing touches on it. This is my last blog post before I share my final prediction and model. For this reason, this week I mainly look at improving my model, by adjusting my variables. I decided to revert back to my national vote share prediction from earlier blogs after last week. Although I was able to model each district, due to the lack of robust data in the majority of districts, I ended up using a lot of nationwide data to fill in the holes. For example, where polling was limited, I used the generic ballot. This made the adjusted R-squared value to be very small or equal to 1 because districts were often being modeled off of one or two previous elections. Aside from improving my model, I also look at shocks in this election cycle. I do not intend to include this in my model because shocks are inherently not predictive, however, it is interesting to see what, if any, impacts shocks have on polling averages.
+
+# Data
+
+The main variables I add in my model this week are demographics. I used data from the [US Census](https://www.census.gov/data/tables/time-series/demo/voting-and-registration/voting-historical-time-series.html) to see how well race, gender, and education background can serve as variables in the model. This data is from 1964 to 2020 and includes the demographics of past voters. Additionally, I continue to use data on DSPIC (Disposable income), CPI, and polls. For looking at shocks, I used the New Times database to see the number of articles published on a certain topic.
+
+# Shocks
+
+In lecture and lab this week we studied the impact of the Dobbs v. Jackson Women's Health Organization decision, which effectively overturned Roe v. Wade, placing the states in power to determine one's right to abortion. This decision was initially leaked in early May and then officially released about a month later. In lab, we saw an initial spike in number of articles when the draft was leaked and then a much larger spike when the actual draft was released. However, this trend was not as evident in the polling averages during this time. There was a slight peak in democratic vote share after each release, but that tended to fade back to the normal trend within a week. Over shocks that could be considered during this time are nationwide ones such as the Raid of Mar-a-lago. However, it is also important to consider that local shocks may be even more significant to voters. For example, the health of Candidate [John Fetterman](https://www.nytimes.com/2022/10/25/us/politics/fetterman-oz-debate-senate-pa.html) could impact Pennsylvania voters or the scandals about [Herschel Walker](https://www.nytimes.com/2022/10/07/upshot/herschel-walker-midterms-analysis.html) may be important to Georgia voters. Shocks do matter in elections (Achen and Bartel (2017)), however, it is difficult to really what constitutes as a shock before the election.
+
+```{r setup, include = F}
+knitr::opts_chunk$set(echo = FALSE)
+
+install.packages("tidyverse", repos = "http://cran.us.r-project.org")
+library(tidyverse)
+install.packages("ggplot2", repos = "http://cran.us.r-project.org")
+library(ggplot2)
+install.packages("blogdown", repos = "http://cran.us.r-project.org")
+library(blogdown)
+install.packages("stargazer", repos = "http://cran.us.r-project.org")
+library(stargazer)
+# Read in model data
+modelDF2 <- read_csv("fundamentals_polls.Oct.csv") 
+df <- read_csv("df.csv")
+seats <- read_csv("house nationwide vote and seat share by party 1948-2020.csv") %>% 
+  select(year, D_seats)
+
+# From census
+race <- read_csv("Race.xlsx - A1 (1).csv") %>% 
+  rename("year" = "Year")
+education <- read_csv("Education.xlsx - A2 (1).csv") %>% 
+  rename("year" = "Year")
+
+# Looked at pastVS as a variable (not predictive)
+# modelDF1 <- modelDF2 %>% 
+#   distinct(year, D_majorvote_pct) %>% 
+#   mutate(pastVS = lag(D_majorvote_pct, 1))
+
+# Cleaning model data
+# Combining model data with education and race
+modelDF <- modelDF2 %>% 
+  distinct(year, D_majorvote_pct, R_majorvote_pct, CPIAUCSL, DSPIC_change_pct, D_support, R_support, GDP_growth_qt) %>% 
+  left_join(race, by = "year") %>% 
+  left_join(education, by = "year") %>%
+  left_join(seats, by = "year") %>% 
+  distinct()
+
+
+# plot(racefit$fitted.values, predict$fit,
+#          main="plus (challenger)", xlab="predicted", ylab="true", 
+#          cex.lab=2, cex.main=2, type='n',xlim=c(40,55),ylim=c(40,55))
+#     text(mod_plus_chl$fitted.values, dat_plus_chl$pv, dat_plus_chl$year)
+#     abline(a=0, b=1, lty=2)
+    
+    
+# dataD %>% 
+#   ggplot(aes(x=year, y=D_majorvote_pct.y)) + 
+#   geom_text(size = 1.8) +
+#   xlab("Quarter unemployment rate") +
+#   ylab("Incumbent party's two-party popular vote share") +
+#   labs(title = "Incumbent Party Vote Share vs. Quarterly Unemployment Rate") + 
+#   theme(plot.title = element_text(hjust = 0.5)) + 
+#   theme_bw() 
+
+
+
+```
+
+# Model Updates: How I improved my model
+
+## Fundamentals
+
+The first thing I did to improve my model was look at the logarithmic relationship between a variable and Democratic vote share. For the economic fundamentals, I found that when I took the log of DSPIC, the R-squared increased by 0.3%. This made DSPIC the strongest predictor among GDP, CPI, and Unemployment. I kept the filtering to be for the 7th economic quarter of the election cycle
+
+## Demographics
+
+I then looked at included demographic data into my model. I first looked at the percentage of Black and White voters. When I included these variables I found that the R-squared went significantly higher (0.7), but none of the coefficients were significant. I then looked at gender.
+
+## Gender
+
+I found that including the log value of percent female and log value of percent male, while holding the log value of percent male constant to prevent collinearity, improved my model's R-squared value and coefficients. R-squared = 0.56.
+
+## Education
+
+Using a similar approach as I did with gender, I then included the log of college educated voters and log of no GED voters. I similarly held no GED constant to prevent collinearity. The R-squared increased to 0.65.
+
+## Years
+
+I then wanted to see how my model changed if I subsetted the years to just midterm years. I found that the R-squared increased to 0.73.
+
+```{r, include = T}
+# Train Data for all years
+dataD <- modelDF %>% 
+  filter(!is.na(D_support)) %>% 
+  #filter(year != 2020) %>%
+  group_by(year) %>% 
+  mutate(D_support = ave(D_support)) %>% 
+  distinct()
+dataD <- dataD[-c(4,6),]
+
+# Train Data for midterms
+dataDMid <- modelDF %>% 
+  filter(!is.na(D_support)) %>% 
+  group_by(year) %>% 
+  mutate(D_support = ave(D_support)) %>% 
+  distinct() %>% 
+  filter(year%%4!=0)
+
+dataDMid <- dataDMid[-3,]
+
+# Test Data
+dataDTest <- modelDF %>%
+  filter(!is.na(D_support)) %>% 
+  filter(year == 2020) %>% 
+  mutate(D_support = 45.1/(46.1+45.1)*100) %>% 
+  mutate(DSPIC_change_pct = 0.1) %>%
+  mutate(CPIAUCSL = 296.81) %>% 
+  select(-D_seats) %>% 
+  distinct()
+
+# Plot Test data DF:
+plotTest <- modelDF %>%
+  filter(!is.na(D_support)) %>% 
+  group_by(year) %>% 
+  mutate(D_support = ave(D_support)) %>% 
+  select(-D_majorvote_pct) %>% 
+  distinct() %>% 
+  filter(year%%4!=0)
+
+plotTest <- plotTest[-3,]
+
+# Model for gender 
+fit1 <- lm(D_seats ~ D_support + DSPIC_change_pct + log(`Femal CVAP`)*log(`Male CVAP`), data = dataDMid)
+
+
+
+# Model for gender and race
+fit2 <- lm(D_seats ~ + log(`Femal CVAP`)*log(`Male CVAP`) + log(`College`):log(`No GED`) , data = dataD)
+#summary(fit2)
+
+# Model for gender and race and midterms
+
+fit3 <- lm(D_seats ~ D_support + DSPIC_change_pct + log(`Femal CVAP`):log(`Male CVAP`) + log(`College`):log(`No GED`) , data = dataDMid)
+
+summary(fit3)
+stargazer(fit3, type="text", dep.var.labels = c("Democratic Major Vote Share Percent"), title="Regression Results",digits = 1, out = "models.txt", covariate.labels=c("Polls","Disposible Percent Income Q7 ",
+"Female Percent","Male Percent","College", "No GED", "Female:Male", "College:No GED"))
+```
+# Analysis: 
+The above output has a fairly significant adjusted R squared value and p-value. However, the extremely high intercept indicates the output is not very significant. Although, looking at the coefficients, it is evident that the Fermale:Male and College:No GED interaction terms have the strongest predictive power. Moving forward, these will be important demographics to consider in my model. 
+
+# Prediction:
+
+To predict national vote share, I used demographics from 2020, which is the most recent census, DSPIC from today (0.1), today's polling from [538](​​https://projects.fivethirtyeight.com/polls/generic-ballot/) (44.8).
+
+My model predicts democrats with 52.13964 percent of the vote share.
+
+
+## Prediction Intervals
+
+My prediction intervals are: 47.12753 - 57.15176
+
+This is a fairly large prediction interval, especially with regard to elections when vote share can come down to a difference of a fraction of percent. I think the limited years of data definitely contributes to this problem. However, decreasing this interval will be important. 
+
+```{r, include = T}
+# Prediction
+## 2022
+predict <- predict(fit1, dataDTest, interval = "prediction", level=0.95)
+predict
+
+## Predicted Values for Years
+predictPlot <- predict(fit1, plotTest)
+dataDMid$predict <- predictPlot
+
+plot(dataDMid$year, dataDMid$D_seats, 
+     type="l",
+     main="True Y (line), Rredicted Y (dot) for each Midterm year")
+points(dataDMid$year, dataDMid$predict, col = "red")
+
+```
+
+# Limitations
+
+The main limitation in my model is lack of data. When I filtered for midterm years, my model improved, however, it is only using data from 16 past elections. This is not nearly enough for me to be confident it will accurately assess new data. Further, the demographics in my model are from 2020. This is not that accurate because the electorate who votes in presidential elections versus midterms can differ by a lot. I chose to use 2020 versus 2018 because I felt that having the most recent demographic data was important, however, I recognize the trade-off that these demographics can differ.
+
+# Moving Forward:
+
+Between now and election day, I will continue to improve my model. I also am going to look at a few districts that have a lot of data and build individual models for them. This will not be my main prediction, but it will allow me to see if my nationwide model has any predictive power at the district level.

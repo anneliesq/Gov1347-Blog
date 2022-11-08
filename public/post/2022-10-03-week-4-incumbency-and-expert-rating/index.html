@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+		
+		
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+		<title>Week 4: Expert Ratings &middot; My New Hugo Site</title>
+
+		
+		<link rel="stylesheet" href="/css/style.css">
+		<link rel="stylesheet" href="/css/fonts.css">
+		
+		<link rel="icon" href="/favicon.ico"/>
+		<link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+		<link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
+		<link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+
+		
+		<link href="" rel="alternate" type="application/rss+xml" title="My New Hugo Site" />
+
+		<script src="/js/darkmode.js"></script>
+	</head>
+
+    <body>
+        		<nav class="nav">
+			<div class="nav-container">
+				<a href="/">
+					
+						<h2 class="nav-title">My New Hugo Site</h2>
+					
+				</a>
+				<ul>
+    
+    
+</ul>
+			</div>
+		</nav>
+
+        <div id="darkModeToggle" onclick="toggleDarkMode()">
+  &#9680; 
+</div>
+
+        
+
+<main>
+	
+
+
+        <div class="post">
+		<div class="post-info">
+    <span>Written by</span>
+        Annelies Quinton
+        <br>
+        <span>on&nbsp;</span><time datetime="2022-10-03 00:00:00 &#43;0000 UTC">October 3, 2022</time>
+</div>
+
+		<h1 class="post-title">Week 4: Expert Ratings</h1>
+<div class="post-line"></div>
+
+		
+
+		
+
+
+<p>This week, I looked at the role of expert rankings at a district level. This is an extension to last week’s focus on polling and incorporating variables into my model that have credibility from others in the election predicting sphere. The questions that directed my research this week were: how accurate are expert rankings, how can expert rankings be compared to actual vote share, and what does this comparison look like at a district level?</p>
+<div id="data-and-steps" class="section level1">
+<h1>Data and Steps</h1>
+<p>This week I looked at three data sets. The first set looked at party vote share on the distinct level. This data allowed me to create a vote share margin variable between republicans and democrats. The second set looked at expert rankings from various sites for each district. The significant variable in this st is average rankings, which takes the average of the rankings on a scale of 1-7 (Solid D to Solid R). Finally, I looked at incumbency data for each district. This shows if the incumbent or challenger won for that district. For all data, I looked at the most recent midterm, filtering the data to 2018.</p>
+</div>
+<div id="mapping-vote-share" class="section level1">
+<h1>Mapping Vote Share</h1>
+<p>The map below shows the actual vote share across the districts in 2018. The color scale goes from red (high Republican vote share) to blue (high Democratic vote share). It is evident that most districts fall in the middle of the gradient because of their lighter colors. Geographically, there appears to be a higher concentration of red districts in the middle of the country, and more blue towards the coasts.</p>
+<p><img src="http://example.org/post/2022-10-03-week-4-incumbency-and-expert-rating/index_files/figure-html/unnamed-chunk-1-1.png" width="672" /></p>
+</div>
+<div id="mapping-expert-rankings" class="section level1">
+<h1>Mapping Expert Rankings</h1>
+<p>The map below shows the expert rankings for each state on a scale of 1 to 7 (Solid D to Solid R). This map follows a fairly similar trend as the actual vote share. To more directly see the relationship between expert rankings and vote share, I converted the rankings to vote share in the following map.</p>
+<p><img src="http://example.org/post/2022-10-03-week-4-incumbency-and-expert-rating/index_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+</div>
+<div id="mapping-difference-between-actual-vote-and-expert-ranking" class="section level1">
+<h1>Mapping Difference Between Actual Vote and Expert Ranking</h1>
+<p>For this map, I converted the seven categories into a related vote share for democrats:
+Solid D = 60
+Likely D = 55
+Lean D = 52.5
+Toss up = 50
+Lean R = 47.5
+Likely R = 45
+Solid R = 40</p>
+<p><img src="http://example.org/post/2022-10-03-week-4-incumbency-and-expert-rating/index_files/figure-html/unnamed-chunk-4-1.png" width="672" />
+# Analysis</p>
+<p>Looking at these three maps, all three follow the same general trends across the country. One of the most significant disparities is with how unchallenged candidates impact the vote share. For example, in New York’s 16th district, there was a 100% democratic vote share. This is because the democratic candidate ran unopposed and therefore there were no republican votes. However, in the expert rankings map, this would only register as a Solid D and therefore only get 60% of the votes. By hardcoding these values in it makes it difficult to measure and map the validity of expert rankings to the actual vote share of the district.</p>
+</div>
+<div id="model-updates" class="section level1">
+<h1>Model Updates</h1>
+<p>This week, I also formalized my model from the collection of variables analyzed the past few weeks. After looking at economic fundamentals in week 2, I decided to add another variable, CPI, which proved to be the strongest predictor of vote share compared to GDP, RDI, and unemployment. In week 2, I also noticed that economic predictors appeared strongest in Q7. For this reason, I used CPI from October of the election year in my model (Healy and Lenz). In week 3, I looked at polling averages. I found that polling was strongest the month prior to the election, so filtered for polls from October to the election. In this model, my predicted Republican Vote share is 48.21% and my predicted Democratic vote share is 49.95%. These values use the most <a href="https://projects.fivethirtyeight.com/polls/generic-ballot/">recent generic ballot</a> polls. However, for both of these values, my adjusted R-squared is about 0.2 which is very low, and indicates that these predictions do not hold much statistical significance.</p>
+<pre><code>## New names:
+## Rows: 3284 Columns: 23
+## ── Column specification
+## ──────────────────────────────────────────────────────── Delimiter: &quot;,&quot; chr
+## (2): party, winner_party dbl (21): ...1, ...2, year, quarter_cycle,
+## GDP_growth_qt, DSPIC_change_pct, ...
+## ℹ Use `spec()` to retrieve the full column specification for this data. ℹ
+## Specify the column types or set `show_col_types = FALSE` to quiet this message.
+## • `` -&gt; `...1`
+## • `...1` -&gt; `...2`</code></pre>
+</div>
+<div id="moving-forward" class="section level1">
+<h1>Moving Forward</h1>
+<p>After looking at expert ratings at the district level, this data will help me construct a district level seat share model. However, I will not be creating a district level model this week as expert ratings would be the only variable I could add, making for a poor model. Although, I will also consider adding a variable around incumbency in my model.</p>
+</div>
+
+
+		
+	</div>
+
+	<div class="pagination">
+		<a href="/post/2022-09-26-week-3-polling/" class="left arrow">&#8592;</a>
+		<a href="/post/2022-10-11-week-5-the-air-war/" class="right arrow">&#8594;</a>
+
+		<a href="#" class="top">Top</a>
+	</div>
+</main>
+
+
+        		<footer>
+			
+			<span>
+			&copy; <time datetime="2022-11-08 14:01:33.711782 -0500 EST m=&#43;2.073918210">2022</time> . Made with <a href='https://gohugo.io'>Hugo</a> using the <a href='https://github.com/EmielH/tale-hugo/'>Tale</a> theme.
+			</span>
+		</footer>
+
+    </body>
+</html>

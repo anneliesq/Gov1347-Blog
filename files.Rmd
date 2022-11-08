@@ -1,0 +1,95 @@
+---
+title: "files"
+author: "Annelies Quinton"
+date: '2022-10-11'
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+## Had to do in separate file because so large
+# # Read in data
+ issues <- read_csv("ads_issues_2012-2018.csv")
+# ads <- read_csv("ads_2006_2018.csv")
+#house <- read_csv("house party vote share by district 1948 to 2020.csv")
+# 
+# write_rds(ads, "ads_issues_2012-2018.rds", compress = "xz")
+# 
+# # Sorting Issues Data
+issuesAll <- issues %>%
+  rename("year" = "cycle") %>%
+  select (state, district, party, ad_tone, ad_purpose, est_cost, year) %>%
+  group_by(state, district, year) %>%
+  summarise(ave_cost = ave(est_cost))
+issuesAll <- unique(issuesAll)
+write_csv(issuesAll, "issuesAll.csv")
+# 
+# 
+# issues2016 <- issues %>% 
+#   filter(cycle == 2016) %>% 
+#   mutate(democrat = case_when(party == "Democrat" ~ 1,
+#                               party == "Republican" ~ 0)) %>% 
+#   select ("airdate", "state", "district", "party","ad_tone", "ad_purpose", "est_cost","democrat") 
+#   
+# # Sorting House Data
+# houseDistrict <- house %>% 
+#   separate(Area, c("District", "district"), " ") %>% 
+#   mutate (state = State) %>% 
+#   select("district", "state", "RepVotes", "DemVotes")
+# 
+# houseDistrict16 <- house %>% 
+#   separate(Area, c("District", "district"), " ") %>% 
+#   mutate (state = State) %>% 
+#   filter(raceYear == 2016) %>% 
+#   select("district", "state", "RepVotes", "DemVotes")
+# 
+# 
+# 
+# # Merging data
+# 
+# ads_votes16 <- issues2016 %>% 
+#   left_join(houseDistrict16, by = c('state', 'district'))
+# 
+# df_ads_votes16 = ads_votes16 %>% 
+#   mutate(dem_ads = case_when(party  == "Democrat" ~ est_cost,
+#                              party != "Democrat" ~ 0)) %>% 
+#   mutate(rep_ads = case_when(party  == "Republican" ~ est_cost,
+#                              party != "Republican" ~ 0)) %>% 
+#   group_by(state, district) %>% 
+#   summarise(ave_cost = ave(est_cost),
+#             ave_ads = length(district),
+#             total_dem = sum(dem_ads),
+#             total_rep = sum(rep_ads))
+# df_ads_votes16U <- unique(df_ads_votes16)
+
+# ads_votes_all <- issuesAll %>% 
+#   left_join(houseDistrict, by = c('state', 'district'))
+# 
+# df_ads_votes_all = ads_votes_all %>% 
+#   group_by(state, district, RepVotes, DemVotes) %>% 
+#   summarise(total_cost = ave(est_cost),
+#             ave_ads = length(district),
+#             total_dem = sum(democrat),
+#             total_rep = length(district) - sum(democrat))
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

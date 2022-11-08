@@ -1,0 +1,181 @@
+---
+title: 'Week 1: Past Elections and Gerrymandering'
+author: "Annelies Quinton"
+date: '2022-09-12'
+output: pdf_document
+categories: []
+tags: []
+slug: []
+---
+Welcome to my weekly election blog for the upcoming 2022 midterms in November.The goal of this blog is to create a prediction for both the seat share and the popular vote for each party within the House of Representatives. I will use this blog to explain changes and additions to my prediction model. I will also provide graphics that support my claims and data reasoning.
+
+
+This first post serves as an introduction to this upcoming election by analyzing the outcomes of past recent midterms. Past elections can indicate patterns and trends that should be accounted for when predicting future elections. The data analyzed in this blog entry addresses voting outcomes at both the district and state level. Although districts elect Representatives, looking at statewide data can provide a more robust outlook at the trends of the state because factors such as redistricting and lack of opposition can limit the accuracy of district voting trends.
+
+```{r setup, include=FALSE}
+# Hide code output
+knitr::opts_chunk$set(echo = FALSE)
+
+# Loading libraries
+install.packages("tidyverse", repos = "http://cran.us.r-project.org")
+library(tidyverse)
+install.packages("ggplot2", repos = "http://cran.us.r-project.org")
+library(ggplot2)
+install.packages("sf", repos = "http://cran.us.r-project.org")
+library(sf)
+install.packages("rmapshaper", repos = "http://cran.us.r-project.org")
+library(rmapshaper)
+install.packages("usmap", repos = "http://cran.us.r-project.org")
+library(usmap)
+states_map <- usmap::us_map()
+install.packages("blogdown", repos = "http://cran.us.r-project.org")
+library(blogdown)
+
+# Reading in data
+
+# Geographic data
+get_congress_map <- function(cong=114) {
+tmp_file <- tempfile()
+tmp_dir <- tempdir()
+zp <- sprintf("https://cdmaps.polisci.ucla.edu/shp/districts114.zip",cong)
+download.file(zp, tmp_file)
+unzip(zipfile = tmp_file, exdir = tmp_dir)
+fpath <- paste(tmp_dir, sprintf("districtShapes/districts114.shp",cong), sep = "/")
+st_read(fpath)
+}
+
+# 114th congress
+cd114 <- get_congress_map(114)
+cd114 <- cd114 %>% 
+  mutate(DISTRICT = as.character(DISTRICT))%>%
+  select(DISTRICT, STATENAME) %>% 
+  rename(State = STATENAME)
+
+```
+
+# National Vote Share
+
+This section will compare the 2014 and 2020 GOP vote share margin. Vote share is calculated by taking total republican votes in a state divided by the sum of the state's total democratic and republican votes. As the shades of red increases in brightness, this represents the GOP having a larger percentage of the vote share in that state.
+
+```{r, include = FALSE}
+house <- read_csv(file = "house party vote share by district 1948 to 2020.csv")
+
+# Joining House and CD114 data (2014) by district
+# filter to 2014
+h.2014 <- house %>% 
+  filter(raceYear == 2014) %>% 
+  select(raceYear, State, district_num, RepVotesMajorPercent, DemVotesMajorPercent) %>% 
+  group_by(district_num, State) %>% 
+  summarise(Rep_votes_pct = RepVotesMajorPercent) %>% 
+  # rename district variable name to match shapefile
+  rename(DISTRICT = district_num)
+```
+
+```{r, include = FALSE}
+# change class
+cd114$DISTRICT <- as.numeric(cd114$DISTRICT)
+
+# Join election outcomes with shapefiles
+cd114 <- cd114 %>% left_join(h.2014, by=c("DISTRICT", "State"))
+cd114 <- ms_simplify(cd114, keep = 0.01, keep_shapes = T)
+#Plot districts
+#district_map <- ggplot() +
+ #geom_sf(data=cd114,aes(fill=Rep_votes_pct),
+  #inherit.aes=FALSE,alpha=0.1) +
+  #scale_fill_gradient(low = "white", high = "red", limits=c(0,100))+
+  #coord_sf(xlim = c(-172.27, -66.57), ylim = c(18.55, 71.23), expand = FALSE) +
+  #theme_void()
+
+#district_map
+```
+
+```{r, include=FALSE}
+# Voteshare margin by party (2020)
+R_2020 <- house %>% 
+  filter(raceYear == 2020) %>% 
+  select(raceYear, State, district_num, district_id, RepVotes, DemVotes) %>% 
+  # sumarize party vote by state
+  group_by(State) %>% 
+  # mutate Rep vote margin by state %>% 
+  mutate(R_votemargin_st = (sum(RepVotes))/
+           sum(RepVotes + DemVotes),
+         D_votemargin_st = (sum(DemVotes))/
+           sum(RepVotes + DemVotes)) %>% 
+  rename(state = State)
+
+#Vote share margin by party (2014)
+R_2014 <- house %>% 
+  filter(raceYear == 2014) %>% 
+  select(raceYear, State, district_num, district_id, RepVotes, DemVotes) %>% 
+  # summarize party vote by state
+  group_by(State) %>% 
+  # mutate Rep vote margin by state %>% 
+  mutate(R_votemargin_st = (sum(RepVotes))/
+           sum(RepVotes + DemVotes),
+         D_votemargin_st = (sum(DemVotes))/
+           sum(RepVotes + DemVotes)) %>% 
+  rename(state = State)
+```
+
+```{r}
+# Plot vote share margin 2014
+vs2014_map <- plot_usmap(data = R_2014, regions = "states", values = "R_votemargin_st", labels = TRUE) +
+  scale_fill_gradient(low = "white", high = "red", name = "GOP two-party voteshare margin in 2014", limits=c(0,1)) + 
+  theme_void()
+
+vs2014_map
+```
+
+In 2014, noteworthy states include Wyoming and Oklahoma which had the highest GOP vote share margin, 74.94% and 72.45%, respectively. Conversely, Massachusetts and Vermont had the lowest GOP vote share margin, 17.3% and 35.51%, respectively.
+
+```{r}
+# Plot vote share margin 2020
+ vs2020_map <- plot_usmap(data = R_2020, regions = "states", values = "R_votemargin_st", labels = TRUE) +
+  scale_fill_gradient(low = "white", high = "red", name = "GOP two-party voteshare margin in 2020", limits=c(-0,1)) +
+  theme_void()
+ 
+ vs2020_map
+ 
+ 
+```
+
+```{r, include=FALSE}
+# Analysis
+#mean_vs_2014 <- mean(R_2014$R_votemargin_st)
+#mean_vs_2020 <- mean(R_2020$R_votemargin_st)
+
+#mean_ss_2020 <- mean(Seats_2020$DemWinner, na.rm=T) 
+#mean_ss_2020 <- (R_2020$R_votemargin_st)
+```
+
+For 2020, the two lowest states of the GOP vote share were in Massachusetts and Rhode Island, 21.97% and 26.01% respectively. The highest were in South Dakota, with 100% and Wyoming with 73.61%. South Dakota's percentage can be explained by the fact that the one open House seat only had one candidate [on the ballot](https://www.nbcnews.com/politics/2020-elections/south-dakota-results), a republican, therefore eliminating the democratic vote share.
+
+Overall, between 2014 and 2020 we see a general decline in the GOP's vote share as the color of the map decreases in brightness. When comparing the mean GOP vote share across these years, we see that in 2014, the mean GOP vote share was 53.19%. Looking at 2020, this value dropped to 48.74%. These values corroborate the general visual trend of the map that shows the GOP vote share decreasing between the 2014 and 2020 elections.
+
+# Seat share and Gerrymandering
+
+This sections looks at the seat share of the House after the 2020 election. Seat share is calculated by the number of republican seats won in a state divided by the total number of seats available in that state.
+
+```{r, include = FALSE}
+# Gerrymandering
+
+Seats_2020 <- read_csv("2020 - Sheet1.csv")
+Seats_2020 <- Seats_2020 %>% 
+  mutate(R_SeatShare = (RepWinner) / (RepWinner + DemWinner)) %>% 
+  rename(state = Area)
+```
+
+```{r}
+gerry2020_map <- plot_usmap(data = Seats_2020, regions = "states", values = "R_SeatShare", labels = TRUE) +
+  scale_fill_gradient(low = "white", high = "red", name = "GOP House Seat Share in 2020") + 
+  theme_void()
+
+
+gerry2020_map
+```
+
+Vote share is an important measurement to consider when predicting election results, however seat share arguably provides a more accurate depiction of the implications of the vote outcomes with regard to the House. Due to plurality voting, popular vote does not equate to the proportion of seats allotted to each party in the House. The map below shows the seat shares after the 2020 election. One state of note is Arkansas, whose data was not included. However, it can be noted that Arkansas had [all four seats](https://ballotpedia.org/United_States_House_of_Representatives_elections_in_Arkansas,_2020) go to the republicans, making their shade a bright red. Compared to the map of the vote shares, this map is evidently more red, indicating a greater percentage of seats won by republicans than the actual vote share won by republicans. Specifically looking in the mountain west region and the south, there is significant disparity among the color shade for these states between the vote share and seat share graphs. The mean seat share for republicans from the 2020 election was 56.19%. This is 7.44% higher than the mean vote share republicans earned. This difference shows how gerrymandering plays a significant role in elections and has shown to support the republican's path to gaining seats in the House. This is likely to continue for the 2022 election, as redistricting from the 2020 census has [enabled both parties, but largely republicans](https://www.brennancenter.org/our-work/analysis-opinion/after-redistricting-heres-how-each-party-could-win-house), to gerrymander districts.
+
+The data analyzed in this week's blog has shown how gerrymandering can contribute to a major difference between vote share and seat share. It leads me to an initial prediction that seat share will not be equal to vote share, and most likely greater for republicans. Understanding the power of gerrymandering will be essential in predicting an accurate model for the upcoming election.
+
+------------------------------------------------------------------------
