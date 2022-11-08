@@ -350,7 +350,7 @@ plot3 <- ggplot(predictInterval3, aes(model, predicted)) +
 
 # Choosing a model
 
-Each model performed well in separate validation testing. To choose a model, I used the chart below to average their performance. From this, model 1 has the highest score. 
+Each model performed well in separate validation testing. To choose a model, I used the chart below to average their performance. From this, model 1 has the highest score.
 
 ```{r, include = T}
 # Model Performance
