@@ -1,13 +1,11 @@
 ---
-title: 'Final Prediction'
-author: "Annelies Quinton"
+title: Final Prediction
+author: Annelies Quinton
 date: '2022-11-07'
-output: pdf_document
+slug: []
 categories: []
 tags: []
-slug: []
 ---
-
 # Intro
 
 This blog includes my final prediction for the 2022 Midterm elections. Over the past 10 weeks, I have looked at various variables, assessing their predictive power, with the goal of creating a prediction model. The outcome of my model is a national vote share prediction.
@@ -29,6 +27,7 @@ library(blogdown)
 install.packages("stargazer", repos = "http://cran.us.r-project.org")
 library(stargazer)
 library(lubridate)
+library(rmarkdown)
 ```
 
 ```{r, include = F}
@@ -349,11 +348,12 @@ plot3 <- ggplot(predictInterval3, aes(model, predicted)) +
 
 Each model performed well in separate validation testing. To choose a model, I used the chart below to average their performance. From this, model 1 has the highest score.
 
-```{r, include = T}
+```{r show_col_types = FALSE}
 # Model Performance
 modelRanks <- read_csv("Model Performance - Sheet1 (1).csv") %>% 
   rename("Test"="...1")
-modelRanks 
+modelRanks <- as.data.frame(modelRanks)
+modelRanks
 ```
 
 My official prediction will be off of model 1, however, I am interested in evaluating both model 1 and model 3's success after the election. I am interested in model 3 because it has fewer variables and more heavily relies on polls. By comparing both models, I can see to what extent polls matter in predicting.

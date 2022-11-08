@@ -1,0 +1,6 @@
+,Model 1,Model 2 ,Model 3
+Adjusted R2,1,2,3
+RMSE,3,3,1
+Out of Sample Error,1,1,2
+Prediction Interval,1,3,2
+Average:,1.5,2.25,2
