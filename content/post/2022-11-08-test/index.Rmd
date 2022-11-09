@@ -163,10 +163,21 @@ predict2 <- predict(fit2, plotTest)
 
 fit3 <- lm(D_majorvote_pct ~ party + aveD, data = modelTrain)
 predict3 <- predict(fit3, plotTest)
-```
 
-```{r include = T}
-stargazer(fit1, fit2, fit3, type="text", dep.var.labels = c("Democratic Major Vote Share Percent"), title="Regression Results",digits = 1, out = "models.txt", covariate.labels=c("Change in percent of white voters", "Change in percent of Hispanic voters", "Presidential Party","President and House Party Match", "Average Democrat Polling Support (50 days out)"))
+regression <- stargazer(fit1, fit2, fit3, 
+          type="text", 
+          dep.var.labels = c("Democratic Major Vote Share Percent"), 
+          title="Regression Results",
+          digits = 1, 
+          out = "models.txt", 
+          covariate.labels=c("Change in percent of white voters", "Change in percent of Hispanic voters", "Presidential Party","President and House Party Match", "Average Democrat Polling Support (50 days out)"), 
+          font.size="small", 
+          single.row = TRUE, 
+          column.sep.width = "3pt",
+          no.space=TRUE)
+```
+```{r, echo=FALSE, out.width = "100%", fig.align = "center"}
+knitr::include_graphics("regressionTable.jpg")
 ```
 
 It is interesting to see the significance of polling decrease as more variables are added. Polling is the only variable that is not significant at the 95% interval for models 1 and 2. Additionally, models 1 and 2 have the highest adjusted R2 values. However, the near perfect fit with model 1 makes me suspicious about its validity. Also, it is important to note that both model 1 and model 2 have 5 fewer observations than model 3 because they consider demographics, and the data for demographics begins in 1982. Additionally, model 3 is similar to the model built by Bafumi, Erikson, Wlezien in their 2018 forecast. However, they manipulate the polling variable more than my model does (Bafumi, Erikson, Wlezien, 2018).
@@ -348,12 +359,15 @@ plot3 <- ggplot(predictInterval3, aes(model, predicted)) +
 
 Each model performed well in separate validation testing. To choose a model, I used the chart below to average their performance. From this, model 1 has the highest score.
 
-```{r show_col_types = FALSE}
+```{r, include=F, echo=FALSE}
 # Model Performance
 modelRanks <- read_csv("Model Performance - Sheet1 (1).csv") %>% 
   rename("Test"="...1")
 modelRanks <- as.data.frame(modelRanks)
-modelRanks
+```
+
+```{r  out.width = "100%", fig.align = "center"}
+knitr::include_graphics("modelScore.jpg")
 ```
 
 My official prediction will be off of model 1, however, I am interested in evaluating both model 1 and model 3's success after the election. I am interested in model 3 because it has fewer variables and more heavily relies on polls. By comparing both models, I can see to what extent polls matter in predicting.
@@ -402,7 +416,7 @@ My final prediction will be off of model 1. I predict that democrats will have 4
 
 Over these past weeks, I have attempted to create a model that predicts both vote share and seat share. However, due to a lack of consistent data across all districts, I found it difficult to create a model. The closest I got to creating a prediction for seat share was in my week [6 blog](https://anneliesq.github.io/Gov1347-Blog/post/2022-10-17-week-6-the-ground-game/) I have included the map of seat distribution below. This model iterates through each district considering average polling, incumbency, and expert ratings. I go into more detail about the specifics in the blog here. This model predicts a seat share distribution of 214 democrat and 221 republican. Although, I do not claim this model has much validity, I am including this prediction to have a value to compare the actual results to. The main focus of this blog and my work has been for national vote share, not seat share.
 
-```{r, echo=FALSE, out.width = "30%", fig.align = "center"}
+```{r, echo=FALSE, out.width = "100%", fig.align = "center"}
 # Seat Share model from blog 6
 knitr::include_graphics("districtModel.png")
 # Predicted Values:

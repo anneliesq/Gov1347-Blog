@@ -84,40 +84,7 @@
 <li><p><strong>Change in Hispanic voters:</strong> This the Hispanic vote share from that election minus the Hispanic vote share from the previous election.</p></li>
 </ol>
 <p>Below I show the regression outputs for the three models I considered.</p>
-<pre><code>## 
-## Regression Results
-## ============================================================================================================
-##                                                                     Dependent variable:                     
-##                                                -------------------------------------------------------------
-##                                                             Democratic Major Vote Share Percent             
-##                                                        (1)                  (2)                 (3)         
-## ------------------------------------------------------------------------------------------------------------
-## Change in percent of white voters                     -1.0**              -2.2**                            
-##                                                       (0.3)                (0.7)                            
-##                                                                                                             
-## Change in percent of Hispanic voters                  1.1***               1.7**                            
-##                                                       (0.2)                (0.6)                            
-##                                                                                                             
-## Presidential Party                                   -3.1***              -2.4**              -2.2***       
-##                                                       (0.3)                (0.8)               (0.5)        
-##                                                                                                             
-## President and House Party Match                      -2.7***                                                
-##                                                       (0.4)                                                 
-##                                                                                                             
-## Average Democrat Polling Support (50 days out)         -0.2                 0.1                0.6***       
-##                                                       (0.1)                (0.3)               (0.1)        
-##                                                                                                             
-## Constant                                             57.0***               42.7*              23.0***       
-##                                                       (5.5)               (16.7)               (7.1)        
-##                                                                                                             
-## ------------------------------------------------------------------------------------------------------------
-## Observations                                            10                  10                   14         
-## R2                                                     1.0                  0.9                 0.8         
-## Adjusted R2                                            1.0                  0.9                 0.8         
-## Residual Std. Error                                0.4 (df = 4)        1.3 (df = 5)        1.9 (df = 11)    
-## F Statistic                                    187.4*** (df = 5; 4) 20.3*** (df = 4; 5) 21.4*** (df = 2; 11)
-## ============================================================================================================
-## Note:                                                                            *p&lt;0.1; **p&lt;0.05; ***p&lt;0.01</code></pre>
+<p><img src="regressionTable.jpg" width="100%" style="display: block; margin: auto;" /></p>
 <p>It is interesting to see the significance of polling decrease as more variables are added. Polling is the only variable that is not significant at the 95% interval for models 1 and 2. Additionally, models 1 and 2 have the highest adjusted R2 values. However, the near perfect fit with model 1 makes me suspicious about its validity. Also, it is important to note that both model 1 and model 2 have 5 fewer observations than model 3 because they consider demographics, and the data for demographics begins in 1982. Additionally, model 3 is similar to the model built by Bafumi, Erikson, Wlezien in their 2018 forecast. However, they manipulate the polling variable more than my model does (Bafumi, Erikson, Wlezien, 2018).</p>
 </div>
 <div id="model-validation" class="section level1">
@@ -139,11 +106,11 @@
 <h2>Cross Validation</h2>
 <p>I then do out-of-sample modeling through cross validation. I randomly 80% to be the train data and the other 20% as the test data. I found the fit 2 had the lowest average mean out-of-sample residual. The histogram for fit 2 also appears the most uniform between the three. Model 1 performed the worst among the three with, with an average mean out-of-sample residual value of 4.896344.</p>
 <p><img src="https://anneliesq.github.io/Gov1347-Blog/post/2022-11-08-test/index_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
-<pre><code>## [1] 5.726569</code></pre>
+<pre><code>## [1] 4.928668</code></pre>
 <p><img src="https://anneliesq.github.io/Gov1347-Blog/post/2022-11-08-test/index_files/figure-html/unnamed-chunk-9-2.png" width="672" /></p>
-<pre><code>## [1] 1.15934</code></pre>
+<pre><code>## [1] 1.166552</code></pre>
 <p><img src="https://anneliesq.github.io/Gov1347-Blog/post/2022-11-08-test/index_files/figure-html/unnamed-chunk-9-3.png" width="672" /></p>
-<pre><code>## [1] 3.955444</code></pre>
+<pre><code>## [1] 3.551431</code></pre>
 </div>
 <div id="prediction-interval" class="section level2">
 <h2>Prediction Interval</h2>
@@ -153,20 +120,7 @@
 <div id="choosing-a-model" class="section level1">
 <h1>Choosing a model</h1>
 <p>Each model performed well in separate validation testing. To choose a model, I used the chart below to average their performance. From this, model 1 has the highest score.</p>
-<pre><code>## New names:
-## Rows: 5 Columns: 4
-## ── Column specification
-## ──────────────────────────────────────────────────────── Delimiter: &quot;,&quot; chr
-## (1): ...1 dbl (3): Model 1, Model 2, Model 3
-## ℹ Use `spec()` to retrieve the full column specification for this data. ℹ
-## Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## • `` -&gt; `...1`</code></pre>
-<pre><code>##                  Test Model 1 Model 2 Model 3
-## 1         Adjusted R2    1.00    2.00    3.00
-## 2                RMSE    1.00    1.00    3.00
-## 3 Out of Sample Error    2.00    1.00    3.00
-## 4 Prediction Interval    1.00    3.00    2.00
-## 5            Average:    1.25    1.75    2.75</code></pre>
+<p><img src="modelScore.jpg" width="100%" style="display: block; margin: auto;" /></p>
 <p>My official prediction will be off of model 1, however, I am interested in evaluating both model 1 and model 3’s success after the election. I am interested in model 3 because it has fewer variables and more heavily relies on polls. By comparing both models, I can see to what extent polls matter in predicting.</p>
 <p>The equations for my models are:</p>
 <div id="model-1" class="section level2">
@@ -188,12 +142,12 @@
 <div id="model-1-1" class="section level2">
 <h2>Model 1</h2>
 <p>The graph shows a republican majority, with fairly small intervals.</p>
-<p><img src="https://anneliesq.github.io/Gov1347-Blog/post/2022-11-08-test/index_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
+<p><img src="https://anneliesq.github.io/Gov1347-Blog/post/2022-11-08-test/index_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
 </div>
 <div id="model-3-1" class="section level2">
 <h2>Model 3</h2>
 <p>The graph shows a slight democratic majority, but has very large confidence intervals.</p>
-<p><img src="https://anneliesq.github.io/Gov1347-Blog/post/2022-11-08-test/index_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
+<p><img src="https://anneliesq.github.io/Gov1347-Blog/post/2022-11-08-test/index_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
 </div>
 </div>
 <div id="final-prediction" class="section level1">
@@ -205,7 +159,7 @@
 <div id="why-not-seats" class="section level2">
 <h2>Why not seats?</h2>
 <p>Over these past weeks, I have attempted to create a model that predicts both vote share and seat share. However, due to a lack of consistent data across all districts, I found it difficult to create a model. The closest I got to creating a prediction for seat share was in my week <a href="https://anneliesq.github.io/Gov1347-Blog/post/2022-10-17-week-6-the-ground-game/">6 blog</a> I have included the map of seat distribution below. This model iterates through each district considering average polling, incumbency, and expert ratings. I go into more detail about the specifics in the blog here. This model predicts a seat share distribution of 214 democrat and 221 republican. Although, I do not claim this model has much validity, I am including this prediction to have a value to compare the actual results to. The main focus of this blog and my work has been for national vote share, not seat share.</p>
-<p><img src="districtModel.png" width="30%" style="display: block; margin: auto;" /></p>
+<p><img src="districtModel.png" width="100%" style="display: block; margin: auto;" /></p>
 </div>
 </div>
 <div id="references" class="section level1">
@@ -231,7 +185,7 @@
         		<footer>
 			
 			<span>
-			&copy; <time datetime="2022-11-08 17:00:26.385339 -0500 EST m=&#43;0.359086751">2022</time> . Made with <a href='https://gohugo.io'>Hugo</a> using the <a href='https://github.com/EmielH/tale-hugo/'>Tale</a> theme.
+			&copy; <time datetime="2022-11-08 21:35:59.650657 -0500 EST m=&#43;2.743063418">2022</time> . Made with <a href='https://gohugo.io'>Hugo</a> using the <a href='https://github.com/EmielH/tale-hugo/'>Tale</a> theme.
 			</span>
 		</footer>
 

@@ -6,24 +6,12 @@ Regression Results
                                                             Democratic Major Vote Share Percent             
                                                        (1)                  (2)                 (3)         
 ------------------------------------------------------------------------------------------------------------
-Change in percent of white voters                     -1.0**              -2.2**                            
-                                                      (0.3)                (0.7)                            
-                                                                                                            
-Change in percent of Hispanic voters                  1.1***               1.7**                            
-                                                      (0.2)                (0.6)                            
-                                                                                                            
-Presidential Party                                   -3.1***              -2.4**              -2.2***       
-                                                      (0.3)                (0.8)               (0.5)        
-                                                                                                            
-President and House Party Match                      -2.7***                                                
-                                                      (0.4)                                                 
-                                                                                                            
-Average Democrat Polling Support (50 days out)         -0.2                 0.1                0.6***       
-                                                      (0.1)                (0.3)               (0.1)        
-                                                                                                            
-Constant                                             57.0***               42.7*              23.0***       
-                                                      (5.5)               (16.7)               (7.1)        
-                                                                                                            
+Change in percent of white voters                  -1.0** (0.3)        -2.2** (0.7)                         
+Change in percent of Hispanic voters               1.1*** (0.2)         1.7** (0.6)                         
+Presidential Party                                -3.1*** (0.3)        -2.4** (0.8)        -2.2*** (0.5)    
+President and House Party Match                   -2.7*** (0.4)                                             
+Average Democrat Polling Support (50 days out)      -0.2 (0.1)           0.1 (0.3)          0.6*** (0.1)    
+Constant                                          57.0*** (5.5)        42.7* (16.7)        23.0*** (7.1)    
 ------------------------------------------------------------------------------------------------------------
 Observations                                            10                  10                   14         
 R2                                                     1.0                  0.9                 0.8         
