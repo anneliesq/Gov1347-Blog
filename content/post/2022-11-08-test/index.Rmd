@@ -408,7 +408,7 @@ plot3
 
 # Final Prediction:
 
-My final prediction will be off of model 1. I predict that democrats will have 46.6% percent of the popular national vote and republicans will have 54.4% of the national vote.
+My final prediction will be off of model 1. I predict that democrats will have 46.6% percent of the popular national vote and republicans will have 53.4% of the national vote.
 
 # Extra
 
