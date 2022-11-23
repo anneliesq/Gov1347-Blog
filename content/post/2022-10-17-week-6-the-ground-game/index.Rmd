@@ -162,17 +162,13 @@ nationalTR <- read_csv("turnout.xlsx - A1.csv") %>%
 
 ```{r, include = F, message=FALSE}
 
- # predict(lm_fun_polls.D, test)
- # 
- # mean(abs(lm_fun_polls.D$residuals))
- # plot(modelDF$year, modelDF$D_majorvote_pct,
- #      type="l")
- # points(modelDF$year, predict(lm_fun_polls.D, modelDF))
+# Creating tibble for each district
 train_data2 <- df %>% 
   left_join(nationalTR, by = "year") %>% 
   
   filter(year >= 1978) %>%
-  mutate(turnout = case_when(is.na(turnout) ~ (CVAPtr),
+  # if district level TR unavilable, use national
+  mutate(turnout = case_when(is.na(turnout) ~ (CVAPtr/100),
                              !is.na(turnout) ~ turnout)) %>% 
   select(year, state, district_num, DemVotesMajorPercent, turnout, CPIAUCSL, ave_dem, incumbent, avg_rating, partyMatch, ave_rep) %>%
   group_by(state, district_num) %>%
@@ -180,25 +176,28 @@ train_data2 <- df %>%
   group_nest() %>% 
   mutate(data = map(data, ~unnest(., cols = c()))) %>% 
   mutate(district_num = as.numeric(district_num)) %>% 
+  # For at large states
   mutate(district_num = case_when(is.na(district_num) ~ 1,
                                   !is.na(district_num) ~ district_num))
 
 
+# Using 2018 as test data with current economics and polling
 test_data <- df %>%
   left_join(nationalTR, by = "year") %>% 
-  filter(year == 2018) %>%
   mutate(CPIAUCSL = 295.62,
-         ave_dem = 45.4) %>%
+         ave_dem = 45.32) %>%
   mutate(turnout = case_when(is.na(turnout) ~ (CVAPtr/100),
                              !is.na(turnout) ~ turnout)) %>% 
   select(year, state, district_num, turnout, CPIAUCSL, ave_dem, incumbent, avg_rating, partyMatch) %>%
   group_by(state, district_num) %>% 
+  mutate(turnout = lag(turnout)) %>% 
   group_nest() %>% 
   mutate(data = map(data, ~unnest(., cols = c()))) %>% 
   mutate(district_num = as.numeric(district_num)) %>% 
   mutate(district_num = case_when(is.na(district_num) ~ 1,
                                   !is.na(district_num) ~ district_num)) 
 
+# Need to fix train data because has too many rows, so deleting duplicates
 train_data <- test_data %>% 
   merge(train_data2, by = c("state", "district_num")) %>% 
   select(state, district_num, data.y) %>% 
@@ -208,44 +207,47 @@ train_data <- test_data %>%
   mutate(district_num = as.numeric(district_num)) %>% 
   mutate(district_num = case_when(is.na(district_num) ~ 1,
                                   !is.na(district_num) ~ district_num)) %>% 
-  mutate(CPIAUCSL = log(CPIAUCSL)) %>% 
-  mutate(avg_rating = log(avg_rating))
+  mutate(avg_rating = case_when(is.na(avg_rating) ~ 1.000,
+                                !is.na(avg_rating) ~ avg_rating))
 
-districtRegression <- train_data %>% 
-  left_join(modelDF, by = c("year")) %>% 
-  mutate(turnout = lag(turnout)) %>% 
-  select(state, district_num, year, turnout, ave_dem, incumbent, avg_rating, DSPIC_change_pct, CPIAUCSL.y, DemVotesMajorPercent, ave_rep) 
+districtRegression <- train_data %>%
+  group_by(state, district_num) %>% 
+  mutate(turnout = lag(turnout)) %>%
+  select(state, district_num, year, turnout, ave_dem, incumbent, avg_rating, DemVotesMajorPercent) %>% 
+  filter(year < 2018 )
+# 
+# 
+# summary(districtRegression)
+# 
+# ahh <- districtRegression %>% 
+#   filter(year == 2020)
 
-  district_data <- districtRegression[-1,]
+#write_csv(districtRegression, "districtData.csv")
 
-summary(districtRegression)
-write_csv(districtRegression, "districtData.csv")
-plot(log(train_data$incumbent), train_data$DemVotesMajorPercent)
+# df1 <- train_data %>% 
+#   mutate(log = (log(avg_rating))) %>% 
+#   mutate(log = case_when(log == "-Inf" ~ -2.4365,
+#                          log > 0 ~ log))
+# summary(df1)
+# fitlog<- lm(df1$log~df1$DemVotesMajorPercent)
+# 
+# fitTR <- lm(df1$avg_rating ~ df1$DemVotesMajorPercent)
+# summary(fitlog)
+# summary(fitTR)
 
-df1 <- train_data %>% 
-  mutate(log = (log(avg_rating))) %>% 
-  mutate(log = case_when(log == "-Inf" ~ -2.4365,
-                         log > 0 ~ log))
-summary(df1)
-fitlog<- lm(df1$log~df1$DemVotesMajorPercent)
-
-fitTR <- lm(df1$avg_rating ~ df1$DemVotesMajorPercent)
-summary(fitlog)
-summary(fitTR)
-test_data <- test_data %>% 
-  unnest() %>% 
-  mutate(CPIAUCSL = log(CPIAUCSL)) %>% 
-  mutate(avg_rating = log(avg_rating))
-
-##
-# log for CPI and ave-rating!!
-
-test_data <- test_data[-182,]
+test_data <- test_data %>%
+  unnest()
+#   mutate(CPIAUCSL = log(CPIAUCSL)) %>% 
+#   mutate(avg_rating = log(avg_rating))
+# 
+# 
+# 
+ test_data <- test_data[-182,]
 
 
 districtTest <- test_data %>% 
   left_join(modelDF, by = c("year")) %>% 
-  distinct(state, district_num, year, turnout, ave_dem, incumbent, avg_rating, partyMatch, DSPIC_change_pct, CPIAUCSL.y)
+  distinct(state, district_num, year, turnout, ave_dem, incumbent, avg_rating, partyMatch.y, DSPIC_change_pct, CPIAUCSL.y)
 
 ```
 
@@ -276,11 +278,11 @@ for (i in 1:50){
     test <- districtTest%>% 
       filter(state == stateI) %>% 
       filter(district_num == j) 
-  # test$turnout < test$turnout - 0.08
-  # train$turnout <- train$turnout - 0.08
+    #test$turnout < test$turnout - 0.08
+    #train$turnout <- train$turnout - 0.08
     
     if(nrow(test) != 0) {
-      fit <- lm(DemVotesMajorPercent ~ CPIAUCSL.y+DSPIC_change_pct + ave_dem + turnout, data = train)
+      fit <- lm(DemVotesMajorPercent ~ incumbent + ave_dem + turnout + avg_rating, data = train)
       predict <- predict(fit, test)
 
       mat[counter, 1] = stateI
@@ -298,7 +300,7 @@ for (i in 1:50){
 }
   
 seats <- mat %>% 
-  mutate(demMajority = case_when(V3 > 50 ~ 1,
+  mutate(demMajority = _when(V3 > 50 ~ 1,
                                  V3 <= 50 ~ 0)) %>% 
   mutate(prediction = case_when(V3 > 100 ~ 100,
                                 V3 < 0 ~ 0,
@@ -310,7 +312,7 @@ seats <- mat %>%
 
 
  sum(seats$demMajority, na.rm = T)
- mean(seats$V4, na.rm = T)
+  mean(seats$V4, na.rm = T)
 
 ```
 
@@ -368,8 +370,8 @@ seatsTR <- mat %>%
   select(state, district_num, prediction, demMajority, V4)
 
 
-# sum(seats$demMajority, na.rm = T)
-# mean(seats$V4, na.rm = T)
+sum(seatsTR$demMajority, na.rm = T)
+ mean(seatsTR$V4, na.rm = T)
 
 ```
 
@@ -431,6 +433,7 @@ cd114_map <- cd114 %>%
 cd114_simp <- ms_simplify(cd114_map, keep = 0.01, keep_shapes = T)
 
 ```
+
 ```{r, include = T, message = FALSE}
 ggplot() +
   geom_sf(data = cd114_simp, aes(fill = factor(demMajority))) +

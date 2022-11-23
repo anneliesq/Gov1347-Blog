@@ -142,7 +142,7 @@ The final variables I considered were:
 
 3.  **Presidential and party match:** A binary variable with 1 being the parties match and -1 being the parties don't match. This is a continuation of the previous variable, but my hypothesis is that if the party matches there will be a larger punishment.
 
-4.  **Change in percent of white voters:** This the white vote share from that election minus the white vote share from the previous election. As seen in lab, white and Hispanic voters had the strongest coefficient toward prediction democratic vote share.
+4.  **Change in percent of white voters:** This is the white vote share from that election minus the white vote share from the previous election. As seen in lab, white and Hispanic voters had the strongest coefficient toward predicting democratic vote share.
 
 5.  **Change in Hispanic voters:** This the Hispanic vote share from that election minus the Hispanic vote share from the previous election.
 
@@ -181,7 +181,7 @@ Interestingly, both model 1 and model 2 have the same rmse value of 0.8164966. T
 # RMSE
 data1 <- data.frame(actual=modelTrain$D_majorvote_pct, fit1=c(predict1), fit2=c(predict2), fit3=c(predict3), year=modelTrain$year)
 rmse1 <- sqrt(mean(!is.na(data1$actual - data1$fit1)^2))
-rmse2 <- sqrt(mean(!is.na(data1$actual - data1$fit1)^2))
+rmse2 <- sqrt(mean(!is.na(data1$actual - data1$fit2)^2))
 rmse3 <- sqrt(mean(!is.na(data1$actual - data1$fit3)^2))
 ```
 
@@ -210,7 +210,7 @@ legend(2007, 58, legend=c("Fit 1", "Fit 2", "Fit 3", "Actual"),
 ```
 ## Cross Validation
 
-I then do out-of-sample modeling through cross validation. I randomly 80% to be the train data and the other 20% as the test data. I found the fit 2 had the lowest average mean out-of-sample residual. The histogram for fit 2 also appears the most uniform between the three. Model 1 performed the worst among the three with, with an average mean out-of-sample residual value of 4.896344.
+I then do out-of-sample modeling through cross validation. I randomly select 80% to be the train data and the other 20% as the test data. I found that fit 2 had the lowest average mean out-of-sample residual. The histogram for fit 2 also appears the most uniform between the three. Model 1 performed the worst among the three with, with an average mean out-of-sample residual value of 4.896344.
 
 ```{r, inlcude = F, warning = FALSE}
 # out of sample prediction: 
@@ -223,7 +223,6 @@ outsamp_errors1 <- sapply(1:1000, function(i){
   
   predict1.out <- predict(fit1.out, modelTrain[modelTrain$year %in% years_outsamp,])
 
-  
   actual.out <- modelTrain$D_majorvote_pct[modelTrain$year %in% years_outsamp] 
 
 
@@ -240,7 +239,6 @@ outsamp_errors2 <- sapply(1:1000, function(i){
   fit2.out <- lm(D_majorvote_pct ~ party + aveD, data = modelTrain[!(modelTrain$year %in% years_outsamp),])
   
   predict2.out <- predict(fit2.out, modelTrain[modelTrain$year %in% years_outsamp,])
-
   
   actual.out <- modelTrain$D_majorvote_pct[modelTrain$year %in% years_outsamp] 
 
@@ -258,7 +256,6 @@ outsamp_errors3 <- sapply(1:1000, function(i){
   
   predict3.out <- predict(fit3.out, modelTrain[modelTrain$year %in% years_outsamp,])
 
-  
   actual.out <- modelTrain$D_majorvote_pct[modelTrain$year %in% years_outsamp] 
 
 
@@ -389,7 +386,7 @@ plot3
 
 # Final Prediction:
 
-My final prediction will be off of model 1. I predict that democrats will have 46.6% percent of the popular national vote and republicans will have 54.4% of the national vote.
+My final prediction will be off of model 1. I predict that democrats will have 46.6% percent of the popular national vote and republicans will have 53.4% of the national vote.
 
 # Extra
 

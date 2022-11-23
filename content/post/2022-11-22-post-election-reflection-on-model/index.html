@@ -1,0 +1,84 @@
+---
+title: Post-election Reflection on Model
+author: Annelies Quinton
+date: '2022-11-22'
+slug: []
+categories: []
+tags: []
+---
+
+
+
+<div id="introduction" class="section level1">
+<h1>Introduction:</h1>
+<p>This week I will be reflecting on the accuracy of my prediction and attempting to understand why and how my prediction differed from the actual results of the election. The results of the election, while still being formalized, appeared to shock most of the country as the anticipated Republican gains did not happen to the extent people were expecting. This so-called “red wave” actually resulted in slight control of the House and a slight majority in vote share. The actual results of the election have not been officially called because of outstanding ballots. However, for the purpose of this blog and my analysis, I will be using <a href="https://www.cookpolitical.com/charts/house-charts/national-house-vote-tracker/2022">Cook’s national vote share</a>, which is 48.3% for Democrats and 51.7% for Republicans. These values come from taking the percentage of each party’s vote and dividing it by the sum of the two parties’ vote share. With regard to the House, I will be using the <a href="https://www.nytimes.com/interactive/2022/11/10/us/elections/results-house-seats-elections-congress.html">New York Times</a> House projections, which is 213 for Democrats and 222 for Republicans. There are still 4 uncalled races, which is why this value is not certain.</p>
+</div>
+<div id="review" class="section level1">
+<h1>Review:</h1>
+<p>Before I get into the analysis of my model, it is important to review my prediction and how I arrived at my model. As discussed in my <a href="https://anneliesq.github.io/Gov1347-Blog/post/2022-11-08-test/">previous blog post</a>, I evaluated three models and ended up focusing on two models, model 1 and model 3. My official final prediction was from model 1, which both predicted national vote share. However, I will evaluate the success of both models. Below I have listed all the variables I used in the models and the regression outputs:</p>
+<ol style="list-style-type: decimal">
+<li><p><strong>Average democrat polling (50 days):</strong> This the average of the democratic generic ballot polls from 50 days prior to the election. The generic ballot is an effective way of understanding the public’s view and filtering for the days leading up to the election gets a better sense of the true pulse of the country (Bafumi, Erikson, Wlezien, 2018).</p></li>
+<li><p><strong>President party:</strong> This is a binary variable with 1 being Democrat and -1 being Republican. Often the party in power is <a href="https://fivethirtyeight.com/features/why-the-presidents-party-almost-always-has-a-bad-midterm/">punished</a> during the midterms.</p></li>
+<li><p><strong>Presidential and party match:</strong> A binary variable with 1 being the parties match and -1 being the parties don’t match. This is a continuation of the previous variable, but my hypothesis is that if the party matches there will be a larger punishment.</p></li>
+<li><p><strong>Change in percent of white voters:</strong> This is the white vote share from that election minus the white vote share from the previous election. As seen in lab, white and Hispanic voters had the strongest coefficient toward predicting democratic vote share.</p></li>
+<li><p><strong>Change in Hispanic voters:</strong> This the Hispanic vote share from that election minus the Hispanic vote share from the previous election.</p></li>
+</ol>
+<p><img src="regressionTable.jpg" width="100%" style="display: block; margin: auto;" />
+As seen by the table above, my first model considers all five variables, whereas the second just uses presidential party and polling.</p>
+<p>The equations for my models are:</p>
+<div id="model-1" class="section level2">
+<h2>Model 1:</h2>
+<p>Democratic Major Vote Share = 57 -1(change in white voters) +1.1(change in Hispanic voters) -3.1(presidential party) -2.7(president house match) -0.2(polling)</p>
+</div>
+<div id="model-3" class="section level2">
+<h2>Model 3:</h2>
+<p>Democratic Major Vote Share = 23 - 2.2(president party) + .6(polls)</p>
+</div>
+<div id="prediction" class="section level2">
+<h2>Prediction:</h2>
+<p>The final prediction was based on the results from model 1. I predicted that Democrats would receive 46.6% of the national vote share and Republicans would receive 53.3% of the national vote share.</p>
+<p>My prediction from model 3 was that Democrats would receive 50.48% of the national vote share and Republicans would receive 49.52% of the national vote share.</p>
+</div>
+</div>
+<div id="comparison-of-results" class="section level1">
+<h1>Comparison of Results</h1>
+<div id="point-comparison" class="section level2">
+<h2>Point Comparison</h2>
+<p>Below are diagrams that show the predicted and actual value for each model and their predictive ranges.</p>
+<pre><code>## Warning: `data_frame()` was deprecated in tibble 1.1.0.
+## ℹ Please use `tibble()` instead.</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-7-1.png" width="672" />
+From the above plots, the actual vote share falls within the prediction interval for each model. For model 1, my predicted value is 1.7 percentage points fewer than the actual value . For model 3, my predicted value is 2.18 percentage points greater than the actual value. From this initial comparison, model 1 had a closer prediction than model 3, meaning that my choice to make my official decision off of model 1 instead of model 3 was the correct choice.</p>
+</div>
+</div>
+<div id="plotting-residuals" class="section level1">
+<h1>Plotting Residuals</h1>
+<p>To assess the significance of this difference, I looked at the residuals from the past years between the predicted and actual values. The graph below includes the 2022 data and the residuals from both models. From this graph, it appears as though both models have a larger residual than previous years. This is seen by the divergence between the actual (black) line and the model (dashed) lines.</p>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-9-1.png" width="672" />
+I continued to evaluate the residuals by creating a histogram of the residuals between 1982 and 2022 for both models.
+<img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-10-1.png" width="672" />
+For model 1, the 2022 residual (1.7) was the largest compared to past elections. For model 3, the 2022 residual (2.18) was near the outer edges of the histogram. However, compared to model 1, model 3 was more within the normal distribution of residuals. Although, the difference between the mean residual (excluding 2022 data), and my 2022 prediction was smaller for model 1 than model 3. This means that although my model 1 predication had the largest residual, the range of residuals, including 2022 data, was smaller than that of model 3.</p>
+</div>
+<div id="hypothesis-for-model-inaccuracies" class="section level1">
+<h1>Hypothesis for Model Inaccuracies</h1>
+<p>In model 1 and 3, there was a significant incumbency penalty. This is seen by both the presidential party variable and the house party match variable. These two variables also had the strongest coefficients. It is known that the party in power tends to lose during the midterm years. Although I did not include economic factors and approval ratings, the rates of inflation and President Biden’s approval ratings would further validate the hypothesis that the Democratic party would be “punished” via loss of seats and votes in this election. However, I think the impact of abortion rights and former President Trump’s endorsements contributed to a lesser degree of punishment for the Democratic party than suspected, resulting in a higher vote compared to my predicted value.</p>
+<p>In all places where abortion was on the ballot, the favored abortion rights. Further, in <a href="https://abcnews.go.com/Elections/exit-polls-2022-us-house-election-results-analysis">exit polls</a>, abortion was regarded the second highest most significant issue to voters, close behind inflation (31% - 27%). 76% of voters who favored abortion as their top issue voted Democrat. However, only 57% of voters who favored inflation as their top issue voted Republican. This means that abortion helped Democrats about the same if not more as inflation helped Republicans. The impact of abortion demonstrates how the incumbency penalty may have been reduced by the united Democratic push for abortion rights.</p>
+<p>Another explanation for the inaccuracies could be drawn from the role of Trump’s endorsements. When looking at <a href="https://abcnews.go.com/Elections/exit-polls-2022-us-house-election-results-analysis">exit polls</a>, Republicans were more divided over their opinions toward Trump than Biden. 20% of Republicans viewed Trump “unfavorably” whereas 14% of Republicans viewed Biden as “favorably.” The fact that a higher percentage of Republicans disapproved of Trump than the percentage of Republicans who approved of Biden demonstrates that Trump’s endorsements could have contributed to Republicans voting for the democratic candidate. However, his success was limited in key races. For example, in the Pennsylvania and Arizona <a href="https://www.washingtonexaminer.com/news/campaigns/trumps-general-election-endorsements-fared-midterms">governor races</a>, both the Democratic candidates won over the Trump-supported Republican candidates. Trump’s endorsements identify a key area where the GOP is divided, indicating the possibility for Republicans to flip their vote, reducing the incumbency penalty.</p>
+</div>
+<div id="proposal-to-test-hypothesis" class="section level1">
+<h1>Proposal to Test Hypothesis</h1>
+<p>One way to consider the impact of abortion on the ballot would be to include demographics for populations that would appear to most likely turnout to vote in response to the Roe v. Wade decision, such as youth or women. This is based on the fact that youth had an extremely high turnout rate this year, <a href="https://circle.tufts.edu/2022-election-center#youth-turnout-second-highest-in-last-three-decades">the second highest in the last three decades</a>.</p>
+<p>Evaluating the effect of Trump is more difficult. However, looking at the impact of endorsements by extremists may be a possible way to test my hypothesis. This data would be difficult to find. One possibility is to look at campaign financing or ad messaging. This could either be a binary variable (endorsed by extremists or not) or could be a value, such as the percentage or total number of endorsers who are extremists. I think this would be helpful in seeing if votes differ from party alliance when extremists are endorsers.</p>
+</div>
+<div id="moving-forward" class="section level1">
+<h1>Moving Forward</h1>
+<p>The process of building my model was difficult and frustrating at times, but overall very rewarding. However, there is certainly room for improvement within my model. As mentioned above, I think considering more demographics such as youth and gender would have improved my prediction. Further, including more racial demographics, such as Black voters, would be helpful considering <a href="https://abcnews.go.com/Elections/exit-polls-2022-us-house-election-results-analysis">Black voters</a> are a consistently pivotal part of the Democratic vote share. I think that having incumbency is important to include. Although, having two variables may have been unnecessary. Next time, I would have just included the president party variable. Finally, I would have considered adding a variable for midterm year. In my models, my train data was just midterm years. However, using all elections with a midterm variable would have made my train data larger while also considering the impact midterms have.</p>
+<p>Overall, I am happy to have been able to create a model in which the actual value fell within my prediction interval. I learned a lot about forecasting and definitely see myself wanting to continue to improve in this area of data analytics.</p>
+</div>
+<div id="extra" class="section level1">
+<h1>Extra</h1>
+<div id="what-happened-with-the-seat-share-model" class="section level2">
+<h2>What Happened With the Seat Share Model</h2>
+<p>As mentioned at the end of my prediction blog, I also included my week 6 seat share model. This model was not the focus of my work, but was included to just have a value to compare the results too. Ironically, this model would have been my strongest model. It predicted 214 seats which is only 1 seat off of the current projected outcome. However, the success of this model quickly fell when I noticed a coding error in the turnout variable of the model. For a few years, I had miscoded turnout as a percentage rather than a decimal. When I adjusted this, the results of my model significantly worsened. For that reason, I decided to not assess the outcome of the model. Although disappointing, I am glad the error was caught. It is very interesting to consider how a miscoded model can perform better than a “correct” model, but demonstrates the variability of elections and the difficulty in predicting them.</p>
+</div>
+</div>
