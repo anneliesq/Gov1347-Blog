@@ -91,7 +91,7 @@ predict3 <- predict(fit3, plotTest)
 stargazer <- stargazer(fit1, fit3, type="text", dep.var.labels = c("Democratic Major Vote Share Percent"), title="Regression Results",digits = 1, out = "models.txt", covariate.labels=c("Change in percent of white voters", "Change in percent of Hispanic voters", "Presidential Party","President and House Party Match", "Average Democrat Polling Support (50 days out)"))
 ```
 ```{r, echo=FALSE, out.width = "100%", fig.align = "center"}
-knitr::include_graphics("regressionTable.jpg")
+knitr::include_graphics("reflection.jpg")
 ```
 As seen by the table above, my first model considers all five variables, whereas the second just uses presidential party and polling.
 
@@ -232,6 +232,9 @@ Overall, I am happy to have been able to create a model in which the actual valu
 ## What Happened With the Seat Share Model
 
 As mentioned at the end of my prediction blog, I also included my week 6 seat share model. This model was not the focus of my work, but was included to just have a value to compare the results too. Ironically, this model would have been my strongest model. It predicted 214 seats which is only 1 seat off of the current projected outcome. However, the success of this model quickly fell when I noticed a coding error in the turnout variable of the model. For a few years, I had miscoded turnout as a percentage rather than a decimal. When I adjusted this, the results of my model significantly worsened. For that reason, I decided to not assess the outcome of the model. Although disappointing, I am glad the error was caught. It is very interesting to consider how a miscoded model can perform better than a “correct” model, but demonstrates the variability of elections and the difficulty in predicting them. 
+
+# References
+Bafumi, Joseph, Robert S. Erikson, and Christopher Wlezien. "Forecasting the 2018 Midterm Election Using National Polls and District Information." PS: Political Science & Politics 51, no. S1 (2018): 7--11. <doi:10.1017/S1049096518001579>.
 
 
 
