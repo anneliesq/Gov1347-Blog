@@ -70,7 +70,7 @@
 </div>
 <div id="review" class="section level1">
 <h1>Review:</h1>
-<p>Before I get into the analysis of my model, it is important to review my prediction and how I arrived at my model. As discussed in my <a href="https://anneliesq.github.io/Gov1347-Blog/post/2022-11-08-test/">previous blog post</a>, I evaluated three models and ended up focusing on two models, model 1 and model 3. My official final prediction was from model 1, which both predicted national vote share. However, I will evaluate the success of both models. Below I have listed all the variables I used in the models and the regression outputs:</p>
+<p>Before I get into the analysis of my model, it is important to review my prediction and how I arrived at my model. As discussed in my <a href="https://anneliesq.github.io/Gov1347-Blog/post/2022-11-08-test/">previous blog post</a>, I evaluated three models and ended up focusing on two models, model 1 and model 3. My official final prediction was from model 1. However, I will evaluate the success of both models. Below I have listed all the variables I used in the models and the regression outputs:</p>
 <ol style="list-style-type: decimal">
 <li><p><strong>Average democrat polling (50 days):</strong> This the average of the democratic generic ballot polls from 50 days prior to the election. The generic ballot is an effective way of understanding the public’s view and filtering for the days leading up to the election gets a better sense of the true pulse of the country (Bafumi, Erikson, Wlezien, 2018).</p></li>
 <li><p><strong>President party:</strong> This is a binary variable with 1 being Democrat and -1 being Republican. Often the party in power is <a href="https://fivethirtyeight.com/features/why-the-presidents-party-almost-always-has-a-bad-midterm/">punished</a> during the midterms.</p></li>
@@ -91,7 +91,7 @@ As seen by the table above, my first model considers all five variables, whereas
 </div>
 <div id="prediction" class="section level2">
 <h2>Prediction:</h2>
-<p>The final prediction was based on the results from model 1. I predicted that Democrats would receive 46.6% of the national vote share and Republicans would receive 53.3% of the national vote share.</p>
+<p>The final prediction was based on the results from model 1. I predicted that Democrats would receive 46.6% of the national vote share and Republicans would receive 53.4% of the national vote share.</p>
 <p>My prediction from model 3 was that Democrats would receive 50.48% of the national vote share and Republicans would receive 49.52% of the national vote share.</p>
 </div>
 </div>
@@ -115,8 +115,8 @@ For model 1, the 2022 residual (1.7) was the largest compared to past elections.
 <div id="hypothesis-for-model-inaccuracies" class="section level1">
 <h1>Hypothesis for Model Inaccuracies</h1>
 <p>In model 1 and 3, there was a significant incumbency penalty. This is seen by both the presidential party variable and the house party match variable. These two variables also had the strongest coefficients. It is known that the party in power tends to lose during the midterm years. Although I did not include economic factors and approval ratings, the rates of inflation and President Biden’s approval ratings would further validate the hypothesis that the Democratic party would be “punished” via loss of seats and votes in this election. However, I think the impact of abortion rights and former President Trump’s endorsements contributed to a lesser degree of punishment for the Democratic party than suspected, resulting in a higher vote compared to my predicted value.</p>
-<p>In all places where abortion was on the ballot, the favored abortion rights. Further, in <a href="https://abcnews.go.com/Elections/exit-polls-2022-us-house-election-results-analysis">exit polls</a>, abortion was regarded the second highest most significant issue to voters, close behind inflation (31% - 27%). 76% of voters who favored abortion as their top issue voted Democrat. However, only 57% of voters who favored inflation as their top issue voted Republican. This means that abortion helped Democrats about the same if not more as inflation helped Republicans. The impact of abortion demonstrates how the incumbency penalty may have been reduced by the united Democratic push for abortion rights.</p>
-<p>Another explanation for the inaccuracies could be drawn from the role of Trump’s endorsements. When looking at <a href="https://abcnews.go.com/Elections/exit-polls-2022-us-house-election-results-analysis">exit polls</a>, Republicans were more divided over their opinions toward Trump than Biden. 20% of Republicans viewed Trump “unfavorably” whereas 14% of Republicans viewed Biden as “favorably.” The fact that a higher percentage of Republicans disapproved of Trump than the percentage of Republicans who approved of Biden demonstrates that Trump’s endorsements could have contributed to Republicans voting for the democratic candidate. However, his success was limited in key races. For example, in the Pennsylvania and Arizona <a href="https://www.washingtonexaminer.com/news/campaigns/trumps-general-election-endorsements-fared-midterms">governor races</a>, both the Democratic candidates won over the Trump-supported Republican candidates. Trump’s endorsements identify a key area where the GOP is divided, indicating the possibility for Republicans to flip their vote, reducing the incumbency penalty.</p>
+<p>In all places where abortion was on the ballot, the outcome favored abortion rights. Further, in <a href="https://abcnews.go.com/Elections/exit-polls-2022-us-house-election-results-analysis">exit polls</a>, abortion was regarded the second highest most significant issue to voters, close behind inflation (31% - 27%). 76% of voters who favored abortion as their top issue voted Democrat. However, only 57% of voters who favored inflation as their top issue voted Republican. This means that abortion helped Democrats about the same if not more as inflation helped Republicans. The impact of abortion demonstrates how the incumbency penalty may have been reduced by the united Democratic push for abortion rights.</p>
+<p>Another explanation for the inaccuracies could be drawn from the role of Trump’s endorsements. When looking at <a href="https://abcnews.go.com/Elections/exit-polls-2022-us-house-election-results-analysis">exit polls</a>, Republicans were more divided over their opinions toward Trump than Biden. 20% of Republicans viewed Trump “unfavorably” whereas 14% of Republicans viewed Biden as “favorably.” The fact that a higher percentage of Republicans disapproved of Trump than the percentage of Republicans who approved of Biden demonstrates that Trump’s endorsements could have contributed to Republicans voting for the Democratic candidate. However, his success was limited in key races. For example, in the Pennsylvania and Arizona <a href="https://www.washingtonexaminer.com/news/campaigns/trumps-general-election-endorsements-fared-midterms">governor races</a>, both the Democratic candidates won over the Trump-supported Republican candidates. Trump’s endorsements identify a key area where the GOP is divided, indicating the possibility for Republicans to flip their vote, reducing the incumbency penalty.</p>
 </div>
 <div id="proposal-to-test-hypothesis" class="section level1">
 <h1>Proposal to Test Hypothesis</h1>
@@ -146,7 +146,6 @@ For model 1, the 2022 residual (1.7) was the largest compared to past elections.
 
 	<div class="pagination">
 		<a href="/Gov1347-Blog/post/2022-11-08-test/" class="left arrow">&#8592;</a>
-		<a href="/Gov1347-Blog/post/2022-11-22-post-election-reflection-on-model/" class="right arrow">&#8594;</a>
 
 		<a href="#" class="top">Top</a>
 	</div>
@@ -156,7 +155,7 @@ For model 1, the 2022 residual (1.7) was the largest compared to past elections.
         		<footer>
 			
 			<span>
-			&copy; <time datetime="2022-11-25 21:12:50.356548 -0500 EST m=&#43;0.624550042">2022</time> . Made with <a href='https://gohugo.io'>Hugo</a> using the <a href='https://github.com/EmielH/tale-hugo/'>Tale</a> theme.
+			&copy; <time datetime="2022-11-25 21:29:04.877447 -0500 EST m=&#43;0.187837585">2022</time> . Made with <a href='https://gohugo.io'>Hugo</a> using the <a href='https://github.com/EmielH/tale-hugo/'>Tale</a> theme.
 			</span>
 		</footer>
 
