@@ -1,67 +1,12 @@
-<!DOCTYPE html>
-<html lang="en-us">
-    <head>
-		
-		
-		<meta charset="UTF-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+---
+title: "Post-election Reflection on Model"
+author: Annelies Quinton
+date: '2022-11-22'
+slug: []
+categories: []
+tags: []
+---
 
-		<title>Post-election Reflection on Model &middot; My New Hugo Site</title>
-
-		
-		<link rel="stylesheet" href="/Gov1347-Blog/css/style.css">
-		<link rel="stylesheet" href="/Gov1347-Blog/css/fonts.css">
-		
-		<link rel="icon" href="/Gov1347-Blog/favicon.ico"/>
-		<link rel="icon" type="image/png" sizes="32x32" href="/Gov1347-Blog/images/favicon-32x32.png">
-		<link rel="icon" type="image/png" sizes="16x16" href="/Gov1347-Blog/images/favicon-16x16.png">
-		<link rel="apple-touch-icon" sizes="180x180" href="/Gov1347-Blog/images/apple-touch-icon.png">
-
-		
-		<link href="" rel="alternate" type="application/rss+xml" title="My New Hugo Site" />
-
-		<script src="/Gov1347-Blog/js/darkmode.js"></script>
-	</head>
-
-    <body>
-        		<nav class="nav">
-			<div class="nav-container">
-				<a href="/">
-					
-						<h2 class="nav-title">My New Hugo Site</h2>
-					
-				</a>
-				<ul>
-    
-    
-</ul>
-			</div>
-		</nav>
-
-        <div id="darkModeToggle" onclick="toggleDarkMode()">
-  &#9680; 
-</div>
-
-        
-
-<main>
-	
-
-
-        <div class="post">
-		<div class="post-info">
-    <span>Written by</span>
-        Annelies Quinton
-        <br>
-        <span>on&nbsp;</span><time datetime="2022-11-22 00:00:00 &#43;0000 UTC">November 22, 2022</time>
-</div>
-
-		<h1 class="post-title">Post-election Reflection on Model</h1>
-<div class="post-line"></div>
-
-		
-
-		
 
 
 <div id="introduction" class="section level1">
@@ -78,7 +23,7 @@
 <li><p><strong>Change in percent of white voters:</strong> This is the white vote share from that election minus the white vote share from the previous election. As seen in lab, white and Hispanic voters had the strongest coefficient toward predicting democratic vote share.</p></li>
 <li><p><strong>Change in Hispanic voters:</strong> This the Hispanic vote share from that election minus the Hispanic vote share from the previous election.</p></li>
 </ol>
-<p><img src="regressionTable.jpg" width="100%" style="display: block; margin: auto;" />
+<p><img src="reflection.jpg" width="100%" style="display: block; margin: auto;" />
 As seen by the table above, my first model considers all five variables, whereas the second just uses presidential party and polling.</p>
 <p>The equations for my models are:</p>
 <div id="model-1" class="section level2">
@@ -100,18 +45,16 @@ As seen by the table above, my first model considers all five variables, whereas
 <div id="point-comparison" class="section level2">
 <h2>Point Comparison</h2>
 <p>Below are diagrams that show the predicted and actual value for each model and their predictive ranges.</p>
-<pre><code>## Warning: `data_frame()` was deprecated in tibble 1.1.0.
-## ℹ Please use `tibble()` instead.</code></pre>
-<p><img src="https://anneliesq.github.io/Gov1347-Blog/post/2022-11-22-post-election-reflection-on-model/index_files/figure-html/unnamed-chunk-7-1.png" width="672" />
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-7-1.png" width="672" />
 From the above plots, the actual vote share falls within the prediction interval for each model. For model 1, my predicted value is 1.7 percentage points fewer than the actual value . For model 3, my predicted value is 2.18 percentage points greater than the actual value. From this initial comparison, model 1 had a closer prediction than model 3, meaning that my choice to make my official decision off of model 1 instead of model 3 was the correct choice.</p>
 </div>
 </div>
 <div id="plotting-residuals" class="section level1">
 <h1>Plotting Residuals</h1>
 <p>To assess the significance of this difference, I looked at the residuals from the past years between the predicted and actual values. The graph below includes the 2022 data and the residuals from both models. From this graph, it appears as though both models have a larger residual than previous years. This is seen by the divergence between the actual (black) line and the model (dashed) lines.</p>
-<p><img src="https://anneliesq.github.io/Gov1347-Blog/post/2022-11-22-post-election-reflection-on-model/index_files/figure-html/unnamed-chunk-9-1.png" width="672" />
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-9-1.png" width="672" />
 I continued to evaluate the residuals by creating a histogram of the residuals between 1982 and 2022 for both models.
-<img src="https://anneliesq.github.io/Gov1347-Blog/post/2022-11-22-post-election-reflection-on-model/index_files/figure-html/unnamed-chunk-10-1.png" width="672" />
+<img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-10-1.png" width="672" />
 For model 1, the 2022 residual (1.7) was the largest compared to past elections. For model 3, the 2022 residual (2.18) was near the outer edges of the histogram. However, compared to model 1, model 3 was more within the normal distribution of residuals. Although, the difference between the mean residual (excluding 2022 data), and my 2022 prediction was smaller for model 1 than model 3. This means that although my model 1 predication had the largest residual, the range of residuals, including 2022 data, was smaller than that of model 3.</p>
 </div>
 <div id="hypothesis-for-model-inaccuracies" class="section level1">
@@ -137,25 +80,7 @@ For model 1, the 2022 residual (1.7) was the largest compared to past elections.
 <p>As mentioned at the end of my prediction blog, I also included my week 6 seat share model. This model was not the focus of my work, but was included to just have a value to compare the results too. Ironically, this model would have been my strongest model. It predicted 214 seats which is only 1 seat off of the current projected outcome. However, the success of this model quickly fell when I noticed a coding error in the turnout variable of the model. For a few years, I had miscoded turnout as a percentage rather than a decimal. When I adjusted this, the results of my model significantly worsened. For that reason, I decided to not assess the outcome of the model. Although disappointing, I am glad the error was caught. It is very interesting to consider how a miscoded model can perform better than a “correct” model, but demonstrates the variability of elections and the difficulty in predicting them.</p>
 </div>
 </div>
-
-
-		
-	</div>
-
-	<div class="pagination">
-		<a href="/Gov1347-Blog/post/2022-11-22-reflection-on-model/" class="left arrow">&#8592;</a>
-
-		<a href="#" class="top">Top</a>
-	</div>
-</main>
-
-
-        		<footer>
-			
-			<span>
-			&copy; <time datetime="2022-11-25 21:12:50.367243 -0500 EST m=&#43;0.635245584">2022</time> . Made with <a href='https://gohugo.io'>Hugo</a> using the <a href='https://github.com/EmielH/tale-hugo/'>Tale</a> theme.
-			</span>
-		</footer>
-
-    </body>
-</html>
+<div id="references" class="section level1">
+<h1>References</h1>
+<p>Bafumi, Joseph, Robert S. Erikson, and Christopher Wlezien. “Forecasting the 2018 Midterm Election Using National Polls and District Information.” PS: Political Science &amp; Politics 51, no. S1 (2018): 7–11. <a href="doi:10.1017/S1049096518001579" class="uri">doi:10.1017/S1049096518001579</a>.</p>
+</div>

@@ -1,11 +1,10 @@
 ---
 title: "Post-election Reflection on Model"
-author: "Annelies Quinton"
-date: "2022-11-22"
-output: pdf_document
+author: Annelies Quinton
+date: '2022-11-22'
+slug: []
 categories: []
 tags: []
-slug: []
 ---
 # Introduction:
 
@@ -134,9 +133,9 @@ predict3D <- predict(fit3, modelTest, interval = "prediction", level=0.95)
 ## Create dataframe to plot
 ## Using Cook: 47.6% Democrats and 50.9% for Republicans
 
-predictInterval1 <- data_frame(model=c("Dem"), predicted=c(predict1D[1,1],48.3), lower=predict1D[1,2], upper=predict1D[1,3], actual=c(1,0))
+predictInterval1 <- tibble(model=c("Dem"), predicted=c(predict1D[1,1],48.3), lower=predict1D[1,2], upper=predict1D[1,3], actual=c(1,0))
 
-predictInterval3 <- data_frame(model=c("Dem"), predicted=c(predict3D[1,1], 48.3), lower=predict3D[1,2], upper=predict3D[1,3], actual=c(1,0))
+predictInterval3 <- tibble(model=c("Dem"), predicted=c(predict3D[1,1], 48.3), lower=predict3D[1,2], upper=predict3D[1,3], actual=c(1,0))
 
 plot1 <- ggplot(predictInterval1, aes(model, predicted, colour = factor(actual))) +        
   geom_point(size = 3) +
