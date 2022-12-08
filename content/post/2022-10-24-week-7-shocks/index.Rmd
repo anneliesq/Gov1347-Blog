@@ -131,6 +131,9 @@ dataDTest <- modelDF %>%
   select(-D_seats) %>% 
   distinct()
 
+national <- read_csv("house nationwide vote and seat share by party 1948-2020.csv")
+
+
 # Plot Test data DF:
 plotTest <- modelDF %>%
   filter(!is.na(D_support)) %>% 
